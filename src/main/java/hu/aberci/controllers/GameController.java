@@ -81,7 +81,7 @@ public class GameController {
 
         }
 
-        chessGameController = new ChessGameController(clockTime, clockIncrement);
+        chessGameController = new ChessGameController(chessBoard, clockTime, clockIncrement);
 
 
 

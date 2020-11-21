@@ -7,7 +7,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import lombok.Getter;
 
-import java.util.TimerTask;
+import java.util.concurrent.*;
 
 public class ChessClockImpl implements ChessClock {
 
@@ -20,6 +20,10 @@ public class ChessClockImpl implements ChessClock {
     @Getter
     IntegerProperty whiteTimeProperty, blackTimeProperty;
 
+    ScheduledExecutorService scheduledExecutorService;
+
+    ScheduledFuture<?> runningClock;
+
     @Override
     public void step() {
         if (playerTurnProperty.get() == PlayerColor.WHITE) {
@@ -29,7 +33,7 @@ public class ChessClockImpl implements ChessClock {
         }
     }
 
-    public void click() {
+    public synchronized void click() {
         if (playerTurnProperty.get() == PlayerColor.WHITE) {
             whiteTimeProperty.set(whiteTimeProperty.get() + increment);
             playerTurnProperty.set(PlayerColor.BLACK);
@@ -39,12 +43,33 @@ public class ChessClockImpl implements ChessClock {
         }
     }
 
+    @Override
+    public void startClock() {
+
+        runningClock = scheduledExecutorService.schedule(this::step, 1, TimeUnit.SECONDS);
+
+    }
+
+    public void stopClock() {
+
+        if (runningClock != null) {
+
+            runningClock.cancel(true);
+
+        }
+
+    }
+
     ChessClockImpl(int startingTime, int timeIncrement) {
 
         increment = timeIncrement;
 
         whiteTimeProperty = new SimpleIntegerProperty(startingTime);
         blackTimeProperty = new SimpleIntegerProperty(startingTime);
+
+        scheduledExecutorService = Executors.newScheduledThreadPool(1);
+
+        runningClock = null;
 
     }
 
@@ -57,15 +82,4 @@ public class ChessClockImpl implements ChessClock {
 
     }
 
-    @Override
-    public void run() {
-
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                step();
-            }
-        };
-
-    }
 }

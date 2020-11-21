@@ -1,29 +1,29 @@
 package hu.aberci.controllers;
 
 import hu.aberci.entities.data.BoardStateImpl;
+import hu.aberci.entities.events.ChessBoardEvent;
+import hu.aberci.entities.data.MoveImpl;
 import hu.aberci.entities.data.TileImpl;
+import hu.aberci.entities.events.ChessPieceEvent;
 import hu.aberci.entities.interfaces.*;
 import hu.aberci.exceptions.*;
 import hu.aberci.util.Predicates;
 import hu.aberci.util.Util;
 import javafx.beans.property.ObjectProperty;
+import javafx.scene.Parent;
 
 import java.util.Set;
 
 public class ChessGameController {
 
     protected BoardState boardState;
-    protected Thread chessClockThread;
+    private Parent parent;
 
-    public ChessGameController(int startingTime, int increment) {
+    public ChessGameController(Parent parent1, int startingTime, int increment) {
+
+        parent = parent1;
 
         boardState = new BoardStateImpl(startingTime, increment, true, true);
-
-    }
-
-    public void startChessClock() {
-
-        chessClockThread = new Thread(boardState.getChessClockProperty().get());
 
     }
 
@@ -73,7 +73,7 @@ public class ChessGameController {
 
     }
 
-    public void movePieceToTile(Piece piece, Tile tile) throws PieceCannotMoveThereException, CheckmateException, PromotionException, WrongPlayerTurnException, DrawException {
+    public void movePieceToTile(Piece piece, Tile tile) throws PieceCannotMoveThereException, WrongPlayerTurnException {
 
         if (piece.getPlayerColorProperty().get() != boardState.getPlayerTurnProperty().get()) {
             throw new WrongPlayerTurnException();
@@ -94,11 +94,15 @@ public class ChessGameController {
         );
 
         if (isPlayerInCheckmate()) {
-            throw new CheckmateException();
+            parent.fireEvent(new ChessBoardEvent(ChessBoardEvent.CHESS_BOARD_EVENT_CHECKMATE, boardState));
         }
 
         if (isPlayerInDraw()) {
-            throw new DrawException();
+            parent.fireEvent(new ChessBoardEvent(ChessBoardEvent.CHESS_BOARD_EVENT_DRAW, boardState));
+        }
+
+        if (isPlayerInCheck() && !isPlayerInCheckmate()) {
+            parent.fireEvent(new ChessBoardEvent(ChessBoardEvent.CHESS_BOARD_EVENT_CHECK, boardState));
         }
 
         if (piece.getPieceTypeProperty().get() == PieceType.PAWN) {
@@ -106,9 +110,16 @@ public class ChessGameController {
             // they are promoting
             if (piece.getTileProperty().get().getXProperty().get() == 0 || piece.getTileProperty().get().getXProperty().get() == 7) {
 
-                throw new PromotionException();
+                parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PAWN_PROMOTION, new MoveImpl(boardState, tile, piece)));
 
             }
+
+        }
+
+        if (tile.getPieceProperty().get() != null) {
+
+            parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_TAKEN, new MoveImpl(boardState, tile, piece)));
+
         }
 
     }

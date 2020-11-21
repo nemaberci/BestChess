@@ -5,7 +5,7 @@ import javafx.beans.property.ObjectProperty;
 
 import java.io.Serializable;
 
-public interface ChessClock extends Serializable, Runnable {
+public interface ChessClock extends Serializable {
 
     ObjectProperty<PlayerColor> getPlayerTurnProperty();
 
@@ -18,5 +18,9 @@ public interface ChessClock extends Serializable, Runnable {
     void step();
 
     void click();
+
+    void startClock();
+
+    void stopClock();
 
 }
