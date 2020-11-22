@@ -5,5 +5,6 @@ public interface Move {
     Piece getPiece();
     BoardState getBoardState();
     Tile getTargetTile();
+    Tile getSourceTile();
 
 }

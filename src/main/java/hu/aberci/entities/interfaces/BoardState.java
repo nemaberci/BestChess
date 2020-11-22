@@ -19,4 +19,6 @@ public interface BoardState extends Serializable {
 
     MapProperty<PlayerColor, List<Piece>> getPiecesProperty();
 
+    ListProperty<Move> getMovesProperty();
+
 }

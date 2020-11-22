@@ -1,26 +1,22 @@
 package hu.aberci.views;
 
-import hu.aberci.entities.events.ChessBoardEvent;
-import hu.aberci.entities.events.ChessPieceEvent;
 import hu.aberci.entities.interfaces.Piece;
-import hu.aberci.entities.interfaces.PieceType;
 import javafx.beans.property.ObjectProperty;
 import javafx.event.EventHandler;
+import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
 import lombok.Getter;
 import lombok.Setter;
 
-public class PieceView extends AnchorPane {
+public class PieceView extends Button {
 
     @Getter
     @Setter
     private ObjectProperty<Piece> pieceProperty;
 
-    private GridPane parentPane;
+    private ChessBoardView parentPane;
 
-    public PieceView(GridPane parent, Piece piece) {
+    public PieceView(ChessBoardView parent, Piece piece) {
 
         super();
 
@@ -28,10 +24,12 @@ public class PieceView extends AnchorPane {
 
         pieceProperty.set(piece);
 
-        onMouseClickedProperty().set(
+        setOnMouseClicked(
                 new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent mouseEvent) {
+
+
 
                     }
                 }

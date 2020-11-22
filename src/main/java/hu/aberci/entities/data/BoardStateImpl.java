@@ -2,10 +2,7 @@ package hu.aberci.entities.data;
 
 import hu.aberci.entities.interfaces.*;
 import hu.aberci.exceptions.NoTilesException;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleMapProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import lombok.Getter;
 import org.apache.commons.lang3.SerializationUtils;
@@ -91,6 +88,9 @@ public class BoardStateImpl implements BoardState {
     @Getter
     SimpleMapProperty<PlayerColor, List<Piece>> piecesProperty;
 
+    @Getter
+    ListProperty<Move> movesProperty;
+
     public BoardStateImpl(int startingTime, int increment, boolean generateTiles, boolean generatePieces) throws NoTilesException {
 
         chessClockProperty = new SimpleObjectProperty<>(
@@ -108,6 +108,8 @@ public class BoardStateImpl implements BoardState {
                         new HashMap<>()
                 )
         );
+
+        movesProperty = new SimpleListProperty<>();
 
         if (generatePieces && !generateTiles) {
             throw new NoTilesException();
@@ -195,6 +197,12 @@ public class BoardStateImpl implements BoardState {
         chessClockProperty.set(
                 new ChessClockImpl(boardState.getChessClockProperty().get())
         );
+
+        /*
+        * We do not replicate moves for the copy constructor
+        *  */
+
+        movesProperty = new SimpleListProperty<>();
 
     }
 

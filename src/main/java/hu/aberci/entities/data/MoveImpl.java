@@ -15,6 +15,9 @@ public class MoveImpl implements Move {
     Tile targetTile;
 
     @Getter
+    Tile sourceTile;
+
+    @Getter
     Piece piece;
 
     public MoveImpl(BoardState b, Tile t, Piece p) {
@@ -22,6 +25,7 @@ public class MoveImpl implements Move {
         boardState = b;
         targetTile = t;
         piece = p;
+        sourceTile = p.getTileProperty().get();
 
     }
 

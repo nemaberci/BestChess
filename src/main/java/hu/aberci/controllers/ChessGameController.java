@@ -11,7 +11,9 @@ import hu.aberci.util.Predicates;
 import hu.aberci.util.Util;
 import javafx.beans.property.ObjectProperty;
 import javafx.scene.Parent;
+import lombok.Getter;
 
+import java.util.List;
 import java.util.Set;
 
 public class ChessGameController {
@@ -63,13 +65,47 @@ public class ChessGameController {
 
     public Set<Tile> getLegalMovesOf(Piece piece) {
 
-        return Util.getAllLegalMoves(boardState, piece);
+        Set<Tile> base = Util.getAllLegalMoves(boardState, piece);
+
+        /*
+        * We add en passant logic
+        * en passant can happen if one is true:
+        *   - a black pawn moved from (x, y) to (x-2, y) and there exists a white pawn on (x, y-1) or (x, y+1)
+        *   - a white pawn moved from (x, y) to (x+2, y) and there exists a black pawn on (x, y-1) or (x, y+1)
+        * */
+
+        Move lastMove = boardState.getMovesProperty().get().get(
+                boardState.getMovesProperty().get().size() - 1);
+
+        if (PieceType.PAWN.equals(lastMove.getPiece().getPieceTypeProperty().get()) &&
+            Math.abs(lastMove.getSourceTile().getXProperty().get() - lastMove.getTargetTile().getXProperty().get()) == 2) {
+
+            if (piece.getTileProperty().get().getXProperty().get() == lastMove.getTargetTile().getXProperty().get() &&
+                Math.abs(piece.getTileProperty().get().getYProperty().get() - lastMove.getSourceTile().getYProperty().get()) == 1) {
+
+                // only now can we take en passant
+
+                base.add(
+                        boardState.getTilesProperty().get()
+                            .get(
+                                    (lastMove.getSourceTile().getXProperty().get() + lastMove.getTargetTile().getXProperty().get()) / 2
+                            )
+                            .get(
+                                    lastMove.getSourceTile().getYProperty().get()
+                            )
+                );
+
+            }
+
+        }
+
+        return base;
 
     }
 
     public boolean canPieceMoveToTile(Piece piece, Tile tile) {
 
-        return Util.getAllLegalMoves(boardState, piece).contains(tile);
+        return getLegalMovesOf(piece).contains(tile);
 
     }
 
@@ -87,6 +123,34 @@ public class ChessGameController {
         tile.getPieceProperty().set(piece);
 
         piece.getTileProperty().set(tile);
+
+        /*
+        * If the move is en passant, we remove the pawn that was taken
+        * */
+
+        Move lastMove = boardState.getMovesProperty().get().get(
+                boardState.getMovesProperty().get().size() - 1);
+
+        if (PieceType.PAWN.equals(lastMove.getPiece().getPieceTypeProperty().get()) &&
+                Math.abs(lastMove.getSourceTile().getXProperty().get() - lastMove.getTargetTile().getXProperty().get()) == 2) {
+
+            if (piece.getTileProperty().get().getXProperty().get() == lastMove.getTargetTile().getXProperty().get() &&
+                    Math.abs(piece.getTileProperty().get().getYProperty().get() - lastMove.getSourceTile().getYProperty().get()) == 1) {
+
+                boardState.getTilesProperty().get()
+                        .get(
+                                (lastMove.getSourceTile().getXProperty().get() + lastMove.getTargetTile().getXProperty().get()) / 2
+                        )
+                        .get(
+                                lastMove.getSourceTile().getYProperty().get()
+                        )
+                        .getPieceProperty().set(
+                                null
+                );
+
+            }
+
+        }
 
         currentTileProperty.set(new TileImpl(null, currentTileProperty.get().getXProperty().get(), currentTileProperty.get().getYProperty().get()));
         boardState.getPlayerTurnProperty().set(
@@ -121,6 +185,12 @@ public class ChessGameController {
             parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_TAKEN, new MoveImpl(boardState, tile, piece)));
 
         }
+
+        boardState.getMovesProperty().add(
+                new MoveImpl(
+                        boardState, tile, piece
+                )
+        );
 
     }
 
