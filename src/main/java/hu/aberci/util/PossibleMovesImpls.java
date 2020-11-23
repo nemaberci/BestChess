@@ -124,7 +124,7 @@ public class PossibleMovesImpls {
 
         Set<Tile> moves = new HashSet<>();
 
-        for (int i = -Math.min(pieceX, pieceY); i < Math.min(8-pieceX, 8-pieceY); i++) {
+        for (int i = -Math.min(pieceX, pieceY); i < Math.min(7-pieceX, 7-pieceY); i++) {
 
             moves.add(
                     boardState.getTilesProperty().get()
@@ -134,7 +134,7 @@ public class PossibleMovesImpls {
 
         }
 
-        for (int i = -Math.min(pieceX, 8-pieceY); i < Math.min(8-pieceX, pieceY); i++) {
+        for (int i = -Math.min(pieceX, 7-pieceY); i < Math.min(7-pieceX, pieceY); i++) {
 
             moves.add(
                     boardState.getTilesProperty().get()

@@ -137,25 +137,29 @@ public class ChessGameController {
         * If the move is en passant, we remove the pawn that was taken
         * */
 
-        Move lastMove = boardState.getMovesProperty().get().get(
-                boardState.getMovesProperty().get().size() - 1);
+        if (boardState.getMovesProperty().get().size() != 0) {
 
-        if (PieceType.PAWN.equals(lastMove.getPiece().getPieceTypeProperty().get()) &&
-                Math.abs(lastMove.getSourceTile().getXProperty().get() - lastMove.getTargetTile().getXProperty().get()) == 2) {
+            Move lastMove = boardState.getMovesProperty().get().get(
+                    boardState.getMovesProperty().get().size() - 1);
 
-            if (piece.getTileProperty().get().getXProperty().get() == lastMove.getTargetTile().getXProperty().get() &&
-                    Math.abs(piece.getTileProperty().get().getYProperty().get() - lastMove.getSourceTile().getYProperty().get()) == 1) {
+            if (PieceType.PAWN.equals(lastMove.getPiece().getPieceTypeProperty().get()) &&
+                    Math.abs(lastMove.getSourceTile().getXProperty().get() - lastMove.getTargetTile().getXProperty().get()) == 2) {
 
-                boardState.getTilesProperty().get()
-                        .get(
-                                (lastMove.getSourceTile().getXProperty().get() + lastMove.getTargetTile().getXProperty().get()) / 2
-                        )
-                        .get(
-                                lastMove.getSourceTile().getYProperty().get()
-                        )
-                        .getPieceProperty().set(
-                                null
-                );
+                if (piece.getTileProperty().get().getXProperty().get() == lastMove.getTargetTile().getXProperty().get() &&
+                        Math.abs(piece.getTileProperty().get().getYProperty().get() - lastMove.getSourceTile().getYProperty().get()) == 1) {
+
+                    boardState.getTilesProperty().get()
+                            .get(
+                                    (lastMove.getSourceTile().getXProperty().get() + lastMove.getTargetTile().getXProperty().get()) / 2
+                            )
+                            .get(
+                                    lastMove.getSourceTile().getYProperty().get()
+                            )
+                            .getPieceProperty().set(
+                            null
+                    );
+
+                }
 
             }
 

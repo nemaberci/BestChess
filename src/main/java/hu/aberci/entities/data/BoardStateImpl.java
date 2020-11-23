@@ -40,19 +40,29 @@ public class BoardStateImpl implements BoardState {
 
     private void createOfficers(List<List<Tile>> tiles, int x, int y, List<Piece> pieces, PlayerColor playerColor) {
         if (y % 7 == 0) { // 0 or 7
-            pieces.add(createRook(tiles.get(x).get(y), playerColor));
+            Piece piece = createRook(tiles.get(x).get(y), playerColor);
+            pieces.add(piece);
+            tiles.get(x).get(y).getPieceProperty().set(piece);
         }
         if (y % 5 == 1) { // 1 or 6
-            pieces.add(createKnight(tiles.get(x).get(y), playerColor));
+            Piece piece = createKnight(tiles.get(x).get(y), playerColor);
+            pieces.add(piece);
+            tiles.get(x).get(y).getPieceProperty().set(piece);
         }
         if (y == 2 || y == 5) {
-            pieces.add(createBishop(tiles.get(x).get(y), playerColor));
+            Piece piece = createBishop(tiles.get(x).get(y), playerColor);
+            pieces.add(piece);
+            tiles.get(x).get(y).getPieceProperty().set(piece);
         }
         if (y == 3) {
-            pieces.add(createQueen(tiles.get(x).get(y), playerColor));
+            Piece piece = createQueen(tiles.get(x).get(y), playerColor);
+            pieces.add(piece);
+            tiles.get(x).get(y).getPieceProperty().set(piece);
         }
         if (y == 4) {
-            pieces.add(createKing(tiles.get(x).get(y), playerColor));
+            Piece piece = createKing(tiles.get(x).get(y), playerColor);
+            pieces.add(piece);
+            tiles.get(x).get(y).getPieceProperty().set(piece);
         }
     }
 
@@ -144,10 +154,14 @@ public class BoardStateImpl implements BoardState {
                                 createOfficers(tiles, x, y, whitePieces, PlayerColor.WHITE);
                                 break;
                             case 1:
-                                whitePieces.add(createPawn(tiles.get(x).get(y), PlayerColor.WHITE));
+                                Piece piece1 = createPawn(tiles.get(x).get(y), PlayerColor.WHITE);
+                                whitePieces.add(piece1);
+                                tiles.get(x).get(y).getPieceProperty().set(piece1);
                                 break;
                             case 6:
-                                blackPieces.add(createPawn(tiles.get(x).get(y), PlayerColor.BLACK));
+                                Piece piece2 = createPawn(tiles.get(x).get(y), PlayerColor.BLACK);
+                                blackPieces.add(piece2);
+                                tiles.get(x).get(y).getPieceProperty().set(piece2);
                                 break;
                             case 7:
                                 createOfficers(tiles, x, y, blackPieces, PlayerColor.BLACK);
@@ -176,7 +190,8 @@ public class BoardStateImpl implements BoardState {
 
     public BoardStateImpl(BoardState boardState) {
 
-        playerTurnProperty = new SimpleObjectProperty<>(
+        playerTurnProperty = new SimpleObjectProperty<>();
+        playerTurnProperty.set(
                 boardState.getPlayerTurnProperty().get()
         );
 
@@ -185,16 +200,16 @@ public class BoardStateImpl implements BoardState {
 
         piecesProperty = new SimpleMapProperty<>();
         Map<PlayerColor, List<Piece>> map = new HashMap<>();
-        List<Piece> pieces = new ArrayList<>();
+        List<Piece> whitePieces = new ArrayList<>();
         for (Piece piece: boardState.getPiecesProperty().get().get(PlayerColor.WHITE)) {
-            pieces.add(new PieceImpl(piece, this));
+            whitePieces.add(new PieceImpl(piece, this));
         }
-        map.put(PlayerColor.WHITE, pieces);
-        pieces.clear();
+        map.put(PlayerColor.WHITE, whitePieces);
+        List<Piece> blackPieces = new ArrayList<>();
         for (Piece piece: boardState.getPiecesProperty().get().get(PlayerColor.BLACK)) {
-            pieces.add(new PieceImpl(piece, this));
+            blackPieces.add(new PieceImpl(piece, this));
         }
-        map.put(PlayerColor.BLACK, pieces);
+        map.put(PlayerColor.BLACK, blackPieces);
         piecesProperty.set(FXCollections.observableMap(map));
 
         chessClockProperty = new SimpleObjectProperty<>();

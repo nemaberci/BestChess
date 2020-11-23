@@ -8,6 +8,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ListChangeListener;
 import javafx.collections.SetChangeListener;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
@@ -24,29 +25,48 @@ public class TileView extends StackPane {
 
     PieceView child;
 
+    TileView me;
+
     public TileView(ChessBoardView gridPane, Tile tile) {
 
         tileProperty = new SimpleObjectProperty<>(tile);
         parent = gridPane;
+        me = this;
 
         parent.getSelectedPieceLegalMoves().addListener(
-                new SetChangeListener<TileView>() {
+                new ListChangeListener<TileView>() {
                     @Override
                     public void onChanged(Change<? extends TileView> change) {
                         System.out.println("I AM CHANGING");
-                        if (change.wasAdded()) {
-                            if (this.equals(change.getElementAdded())) {
-                                setStyle(
-                                        "-fx-background-color: #baca44"
-                                );
+
+                        while (change.next()) {
+
+                            if (change.wasRemoved()) {
+
+                                if (change.getRemoved().contains(me)) {
+
+                                    setStyle(
+                                            "-fx-background-color: " + (((tileProperty.get().getYProperty().get() + tileProperty.get().getXProperty().get()) % 2 == 1) ? "gray" : "white")
+                                    );
+
+                                }
+
+                            } else {
+
+                                if (change.wasAdded()) {
+
+                                    if (change.getAddedSubList().contains(me)) {
+
+                                        setStyle(
+                                                "-fx-background-color: " + (((tileProperty.get().getYProperty().get() + tileProperty.get().getXProperty().get()) % 2 == 1) ? "forestgreen" : "palegreen")
+                                        );
+
+                                    }
+
+                                }
+
                             }
-                        }
-                        if (change.wasRemoved()) {
-                            if (this.equals(change.getElementRemoved())) {
-                                setStyle(
-                                        "-fx-background-color:" + (((tileProperty.get().getYProperty().get() + tileProperty.get().getXProperty().get()) % 2 == 1) ? "#769656" : "#eeeed2")
-                                );
-                            }
+
                         }
                     }
                 }
@@ -75,7 +95,7 @@ public class TileView extends StackPane {
         );
 
         setStyle(
-                "-fx-background-color:" + (((tileProperty.get().getYProperty().get() + tileProperty.get().getXProperty().get()) % 2 == 1) ? "#769656" : "#eeeed2")
+                "-fx-background-color: " + (((tileProperty.get().getYProperty().get() + tileProperty.get().getXProperty().get()) % 2 == 1) ? "gray" : "white")
         );
 
     }

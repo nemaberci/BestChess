@@ -7,9 +7,7 @@ import hu.aberci.entities.interfaces.BoardState;
 import hu.aberci.entities.interfaces.Piece;
 import hu.aberci.entities.interfaces.PlayerColor;
 import hu.aberci.entities.interfaces.Tile;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleSetProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
@@ -43,7 +41,7 @@ public class ChessBoardView extends GridPane {
     @Getter
     ObjectProperty<PieceView> selectedPieceView;
     @Getter
-    ObservableSet<TileView> selectedPieceLegalMoves;
+    ListProperty<TileView> selectedPieceLegalMoves;
 
     @Setter
     ChessGameController chessGameController;
@@ -53,7 +51,9 @@ public class ChessBoardView extends GridPane {
         super();
 
         selectedPieceView = new SimpleObjectProperty<>(null);
-        selectedPieceLegalMoves = new SimpleSetProperty<>();
+        selectedPieceLegalMoves = new SimpleListProperty<>(
+                FXCollections.observableList(new ArrayList<>())
+        );
 
         addEventHandler(
                 ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_MOVE,
@@ -85,15 +85,25 @@ public class ChessBoardView extends GridPane {
 
                         if (selectedPieceView.get() != null) {
 
-                            selectedPieceLegalMoves.addAll(
-                                    chessGameController.getLegalMovesOf(chessPieceEvent.getMove().getPiece()).stream().map(
-                                            tile -> tileViews.get(
-                                                    tile.getXProperty().get()
-                                            ).get(
-                                                    tile.getYProperty().get()
-                                            )
-                                    ).collect(Collectors.toSet())
-                            );
+                            System.out.println(chessGameController.getLegalMovesOf(chessPieceEvent.getMove().getPiece()).size());
+
+                            for (TileView tileView: chessGameController.getLegalMovesOf(chessPieceEvent.getMove().getPiece()).stream().map(
+                                    tile -> tileViews.get(
+                                            tile.getXProperty().get()
+                                    ).get(
+                                            tile.getYProperty().get()
+                                    )
+                            ).collect(Collectors.toList())) {
+
+                                System.out.println(tileView);
+
+                                selectedPieceLegalMoves.add(
+                                        tileView
+                                );
+
+                            }
+
+                            System.out.println(selectedPieceLegalMoves.size());
 
                         }
 

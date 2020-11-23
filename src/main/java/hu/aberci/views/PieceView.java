@@ -34,8 +34,8 @@ public class PieceView extends Button {
         pieceProperty = new SimpleObjectProperty<>(piece);
 
         selectedPieceView = new SimpleObjectProperty<>();
-        selectedPieceView.bindBidirectional(
-                parentBoard.getSelectedPieceView()
+        parentBoard.selectedPieceView.bindBidirectional(
+                selectedPieceView
         );
 
         setOnMouseClicked(
@@ -47,12 +47,27 @@ public class PieceView extends Button {
 
                         if (parentBoard.getSelectedPieceView().get() != null) {
 
-                            getParent().fireEvent(mouseEvent);
+                            if (parentBoard.getSelectedPieceLegalMoves().contains(
+                                    getParent()
+                            )) {
+                                System.out.println("Parent was selected");
+                                getParent().fireEvent(mouseEvent);
+                            } else {
+                                parentBoard.selectedPieceView.set(
+                                        me
+                                );
+                                parentBoard.fireEvent(
+                                        new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_SELECTED,
+                                                new MoveImpl(parentBoard.getBoardStateProperty().get(), null, me.getPieceProperty().get()))
+                                );
+                            }
 
                         } else {
 
                             // I cannot use set(this) in here so I created a proxy for this
-                            selectedPieceView.set(me);
+                            parentBoard.selectedPieceView.set(
+                                    me
+                            );
                             parentBoard.fireEvent(
                                     new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_SELECTED,
                                             new MoveImpl(parentBoard.getBoardStateProperty().get(), null, me.getPieceProperty().get()))
