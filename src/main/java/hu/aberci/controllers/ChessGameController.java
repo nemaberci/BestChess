@@ -12,13 +12,16 @@ import hu.aberci.util.Util;
 import javafx.beans.property.ObjectProperty;
 import javafx.scene.Parent;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.Set;
 
 public class ChessGameController {
 
+    @Getter
     protected BoardState boardState;
+    @Setter
     private Parent parent;
 
     public ChessGameController(Parent parent1, int startingTime, int increment) {

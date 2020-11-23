@@ -95,9 +95,18 @@ public class MenuController {
                     @Override
                     public void handle(ActionEvent actionEvent) {
                         try {
-                            ((Stage) startButton.getScene().getWindow()).setScene(
-                                    new Scene(new FXMLLoader(getClass().getClassLoader().getResource("fxml/game.fxml")).load())
+
+                            final FXMLLoader loader = new FXMLLoader(
+                                    MenuController.class.getResource("/fxml/game.fxml")
                             );
+
+                            loader.setRoot(null);
+
+                            ((Stage) startButton.getScene().getWindow()).setScene(
+                                    new Scene(loader.load())
+                            );
+
+
                         } catch (Exception exception) {
                             exception.printStackTrace();
                         }
