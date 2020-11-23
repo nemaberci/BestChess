@@ -109,7 +109,11 @@ public class BoardStateImpl implements BoardState {
                 )
         );
 
-        movesProperty = new SimpleListProperty<>();
+        movesProperty = new SimpleListProperty<>(
+                FXCollections.observableList(
+                        new ArrayList<>()
+                )
+        );
 
         if (generatePieces && !generateTiles) {
             throw new NoTilesException();

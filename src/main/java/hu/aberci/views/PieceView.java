@@ -1,9 +1,11 @@
 package hu.aberci.views;
 
+import hu.aberci.entities.data.MoveImpl;
+import hu.aberci.entities.events.ChessPieceEvent;
 import hu.aberci.entities.interfaces.Piece;
 import hu.aberci.util.Util;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
+import javafx.collections.ObservableSet;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
@@ -17,15 +19,24 @@ public class PieceView extends Button {
     @Setter
     private ObjectProperty<Piece> pieceProperty;
 
-    private ChessBoardView parentPane;
+    private ChessBoardView parentBoard;
+    private PieceView me;
+
+    private ObjectProperty<PieceView> selectedPieceView;
 
     public PieceView(ChessBoardView parent, Piece piece) {
 
         super();
 
-        parentPane = parent;
+        parentBoard = parent;
+        me = this;
 
         pieceProperty = new SimpleObjectProperty<>(piece);
+
+        selectedPieceView = new SimpleObjectProperty<>();
+        selectedPieceView.bindBidirectional(
+                parentBoard.getSelectedPieceView()
+        );
 
         setOnMouseClicked(
                 new EventHandler<MouseEvent>() {
@@ -34,27 +45,46 @@ public class PieceView extends Button {
 
                         System.out.println("I WAS CLICKED, I CONTAIN A PIECE " + pieceProperty.get().getPieceTypeProperty().get() + " THAT IS " + pieceProperty.get().getPlayerColorProperty().get());
 
+                        if (parentBoard.getSelectedPieceView().get() != null) {
+
+                            getParent().fireEvent(mouseEvent);
+
+                        } else {
+
+                            // I cannot use set(this) in here so I created a proxy for this
+                            selectedPieceView.set(me);
+                            parentBoard.fireEvent(
+                                    new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_SELECTED,
+                                            new MoveImpl(parentBoard.getBoardStateProperty().get(), null, me.getPieceProperty().get()))
+                            );
+
+                        }
+
                     }
                 }
         );
 
-        ImageView imageView = new ImageView(
+        ImageView imageView = new ImageView();
+
+        imageView.imageProperty().set(
                 Util.getPieceImage(
                         pieceProperty.get()
                 )
         );
 
-        imageView.fitWidthProperty().bind(
-                widthProperty()
-        );
-
-        imageView.fitHeightProperty().bind(
-                heightProperty()
-        );
+        imageView.setSmooth(true);
 
         imageView.setPreserveRatio(true);
 
-        graphicProperty().setValue(
+        imageView.setFitHeight(
+                40
+        );
+
+        imageView.setFitWidth(
+                35
+        );
+
+        setGraphic(
                 imageView
         );
 

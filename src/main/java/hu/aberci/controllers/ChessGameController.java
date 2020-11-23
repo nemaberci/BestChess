@@ -77,26 +77,32 @@ public class ChessGameController {
         *   - a white pawn moved from (x, y) to (x+2, y) and there exists a black pawn on (x, y-1) or (x, y+1)
         * */
 
-        Move lastMove = boardState.getMovesProperty().get().get(
-                boardState.getMovesProperty().get().size() - 1);
+        if (boardState.getMovesProperty().get().size() != 0) {
 
-        if (PieceType.PAWN.equals(lastMove.getPiece().getPieceTypeProperty().get()) &&
-            Math.abs(lastMove.getSourceTile().getXProperty().get() - lastMove.getTargetTile().getXProperty().get()) == 2) {
+            Move lastMove = null;
 
-            if (piece.getTileProperty().get().getXProperty().get() == lastMove.getTargetTile().getXProperty().get() &&
-                Math.abs(piece.getTileProperty().get().getYProperty().get() - lastMove.getSourceTile().getYProperty().get()) == 1) {
+            lastMove = boardState.getMovesProperty().get().get(
+                    boardState.getMovesProperty().get().size() - 1);
 
-                // only now can we take en passant
+            if (PieceType.PAWN.equals(lastMove.getPiece().getPieceTypeProperty().get()) &&
+                    Math.abs(lastMove.getSourceTile().getXProperty().get() - lastMove.getTargetTile().getXProperty().get()) == 2) {
 
-                base.add(
-                        boardState.getTilesProperty().get()
-                            .get(
-                                    (lastMove.getSourceTile().getXProperty().get() + lastMove.getTargetTile().getXProperty().get()) / 2
-                            )
-                            .get(
-                                    lastMove.getSourceTile().getYProperty().get()
-                            )
-                );
+                if (piece.getTileProperty().get().getXProperty().get() == lastMove.getTargetTile().getXProperty().get() &&
+                        Math.abs(piece.getTileProperty().get().getYProperty().get() - lastMove.getSourceTile().getYProperty().get()) == 1) {
+
+                    // only now can we take en passant
+
+                    base.add(
+                            boardState.getTilesProperty().get()
+                                    .get(
+                                            (lastMove.getSourceTile().getXProperty().get() + lastMove.getTargetTile().getXProperty().get()) / 2
+                                    )
+                                    .get(
+                                            lastMove.getSourceTile().getYProperty().get()
+                                    )
+                    );
+
+                }
 
             }
 

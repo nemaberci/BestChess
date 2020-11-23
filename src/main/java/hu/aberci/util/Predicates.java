@@ -14,7 +14,12 @@ import java.util.stream.Collectors;
 
 public class Predicates {
 
-    public static Predicate<Move> pieceOnTileIsNotOfPlayerColor = (move) -> move.getTargetTile().getPieceProperty().get().getPlayerColorProperty().get() != move.getPiece().getPlayerColorProperty().get();
+    public static Predicate<Move> pieceOnTileIsNotOfPlayerColor = (move) -> {
+        if (move.getTargetTile().getPieceProperty().get() == null) {
+            return true;
+        }
+        return move.getTargetTile().getPieceProperty().get().getPlayerColorProperty().get() != move.getPiece().getPlayerColorProperty().get();
+    };
 
     private static boolean isTileInMoves(Set<Tile> moves, int x, int y) {
 

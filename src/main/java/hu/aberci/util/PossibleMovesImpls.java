@@ -11,7 +11,7 @@ public class PossibleMovesImpls {
 
     public static PossibleMoves possiblePawnMoves = (boardState, piece) -> {
 
-        int pawnStartingX = piece.getPlayerColorProperty().get() == PlayerColor.WHITE ? 1 : 6;
+        int pawnStartingX = PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? 1 : 6;
 
         boolean canMoveTwice = piece.getTileProperty().get().getXProperty().get() == pawnStartingX;
 
@@ -22,7 +22,7 @@ public class PossibleMovesImpls {
 
         moves.add(
                 boardState.getTilesProperty().get()
-                        .get(pieceX + 1)
+                        .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 1 : pieceX - 1))
                         .get(pieceY)
         );
 
@@ -30,7 +30,7 @@ public class PossibleMovesImpls {
 
             moves.add(
                     boardState.getTilesProperty().get()
-                            .get(pieceX + 2)
+                            .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 2 : pieceX - 2))
                             .get(pieceY)
             );
 
@@ -39,7 +39,7 @@ public class PossibleMovesImpls {
         boolean canTakeToTheLeft = false;
         if (pieceY != 0) {
             canTakeToTheLeft = boardState.getTilesProperty().get()
-                    .get(pieceX + 1)
+                    .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 1 : pieceX - 1))
                     .get(pieceY - 1)
                     .getPieceProperty()
                     .get() != null;
@@ -48,7 +48,7 @@ public class PossibleMovesImpls {
         boolean canTakeToTheRight = false;
         if (pieceY != 7) {
             canTakeToTheRight = boardState.getTilesProperty().get()
-                    .get(pieceX + 1)
+                    .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 1 : pieceX - 1))
                     .get(pieceY + 1)
                     .getPieceProperty()
                     .get() != null;
@@ -58,7 +58,7 @@ public class PossibleMovesImpls {
 
             moves.add(
                     boardState.getTilesProperty().get()
-                            .get(pieceX + 1)
+                            .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 1 : pieceX - 1))
                             .get(pieceY - 1)
             );
 
@@ -68,7 +68,7 @@ public class PossibleMovesImpls {
 
             moves.add(
                     boardState.getTilesProperty().get()
-                            .get(pieceX + 1)
+                            .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 1 : pieceX - 1))
                             .get(pieceY + 1)
             );
 

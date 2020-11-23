@@ -1,5 +1,8 @@
 package hu.aberci.views;
 
+import hu.aberci.controllers.ChessGameController;
+import hu.aberci.controllers.GameController;
+import hu.aberci.entities.events.ChessPieceEvent;
 import hu.aberci.entities.interfaces.BoardState;
 import hu.aberci.entities.interfaces.Piece;
 import hu.aberci.entities.interfaces.PlayerColor;
@@ -11,6 +14,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.collections.ObservableSet;
+import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.layout.ColumnConstraints;
@@ -18,12 +22,14 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class ChessBoardView extends GridPane {
 
@@ -37,10 +43,64 @@ public class ChessBoardView extends GridPane {
     @Getter
     ObjectProperty<PieceView> selectedPieceView;
     @Getter
-    ObservableSet<TileView> availableTileViews;
+    ObservableSet<TileView> selectedPieceLegalMoves;
+
+    @Setter
+    ChessGameController chessGameController;
 
     public ChessBoardView() {
+
         super();
+
+        selectedPieceView = new SimpleObjectProperty<>(null);
+        selectedPieceLegalMoves = new SimpleSetProperty<>();
+
+        addEventHandler(
+                ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_MOVE,
+                new EventHandler<ChessPieceEvent>() {
+                    @Override
+                    public void handle(ChessPieceEvent chessPieceEvent) {
+
+                        if (chessGameController.canPieceMoveToTile(chessPieceEvent.getMove().getPiece(), chessPieceEvent.getMove().getTargetTile())) {
+
+                            chessGameController.movePieceToTile(chessPieceEvent.getMove().getPiece(), chessPieceEvent.getMove().getTargetTile());
+
+                        } else {
+
+                            selectedPieceView = new SimpleObjectProperty<>(null);
+
+                        }
+
+                    }
+                }
+        );
+
+        addEventHandler(
+                ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_SELECTED,
+                new EventHandler<ChessPieceEvent>() {
+                    @Override
+                    public void handle(ChessPieceEvent chessPieceEvent) {
+
+                        selectedPieceLegalMoves.clear();
+
+                        if (selectedPieceView.get() != null) {
+
+                            selectedPieceLegalMoves.addAll(
+                                    chessGameController.getLegalMovesOf(chessPieceEvent.getMove().getPiece()).stream().map(
+                                            tile -> tileViews.get(
+                                                    tile.getXProperty().get()
+                                            ).get(
+                                                    tile.getYProperty().get()
+                                            )
+                                    ).collect(Collectors.toSet())
+                            );
+
+                        }
+
+                    }
+                }
+        );
+
     }
 
     public void initialize() {
@@ -66,8 +126,6 @@ public class ChessBoardView extends GridPane {
 
                     }
 
-                    boolean isColoredBlack = false;
-
                     for (List<Tile> tileList: val.getTilesProperty().get()) {
 
                         tileViews.add(FXCollections.observableList(new ArrayList<>()));
@@ -79,16 +137,8 @@ public class ChessBoardView extends GridPane {
                             add(tileView, tile.getXProperty().get(), tile.getYProperty().get());
                             System.out.println("ADDED NEW TILEVIEW AT " + tile.getXProperty().get() + ", " + tile.getYProperty().get());
 
-                            tileView.setStyle("-fx-background-color: " + (isColoredBlack ? "black" : "white"));
-                            isColoredBlack = !isColoredBlack;
-
-                            tileView.setVisible(true);
-
                             tileView.setPrefSize(50, 50);
                             tileView.setMaxSize(50, 50);
-
-                            setHgrow(tileView, Priority.NEVER);
-                            setVgrow(tileView, Priority.NEVER);
 
                         }
 
@@ -138,9 +188,6 @@ public class ChessBoardView extends GridPane {
 
                     pieceViews.put(PlayerColor.WHITE, whitePieceViews);
                     pieceViews.put(PlayerColor.BLACK, blackPieceViews);
-
-                    selectedPieceView = new SimpleObjectProperty<>();
-                    availableTileViews = new SimpleSetProperty<>();
 
                 }
         );

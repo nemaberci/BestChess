@@ -26,7 +26,7 @@ public class Util {
 
         }
 
-        possibleTiles = possibleMoves.map(Move::getTargetTile).collect(Collectors.toSet());
+        possibleTiles = possibleMoves.map(MoveImpl::getTargetTile).collect(Collectors.toSet());
 
         return  possibleTiles;
 

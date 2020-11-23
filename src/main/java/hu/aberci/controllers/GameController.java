@@ -1,30 +1,12 @@
 package hu.aberci.controllers;
 
-import hu.aberci.entities.data.BoardStateImpl;
-import hu.aberci.entities.data.TileImpl;
-import hu.aberci.entities.interfaces.BoardState;
-import hu.aberci.entities.interfaces.PlayerColor;
-import hu.aberci.entities.interfaces.Tile;
 import hu.aberci.main.GameMain;
 import hu.aberci.views.ChessBoardView;
-import hu.aberci.views.PieceView;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.RowConstraints;
-import javafx.scene.layout.StackPane;
+import lombok.Getter;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 
 import static java.lang.Integer.parseInt;
@@ -72,6 +54,8 @@ public class GameController implements Initializable {
 
         chessBoard.getBoardStateProperty()
                 .set(chessGameController.getBoardState());
+
+        chessBoard.setChessGameController(chessGameController);
 
     }
 }
