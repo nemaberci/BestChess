@@ -47,6 +47,16 @@ public class ChessGameController {
 
     }
 
+    public ChessGameController(Parent parent1, BoardState boardState) {
+
+        parent = parent1;
+
+        boardStateProperty = new SimpleObjectProperty<>(
+                boardState
+        );
+
+    }
+
     public boolean doesCurrentPlayerHaveAnyMoves() {
 
         for (Piece piece: boardStateProperty.get().getPiecesProperty().get().get(boardStateProperty.get().getPlayerTurnProperty().get())) {
@@ -483,6 +493,9 @@ public class ChessGameController {
             parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_TAKEN, new MoveImpl(newBoardState, tile, piece)));
 
         }
+
+        // What caused the piece moved event does not matter, we only want to know when it happens
+        parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_MOVED, new MoveImpl()));
 
     }
 

@@ -9,7 +9,7 @@ import javafx.collections.ObservableMap;
 import java.io.Serializable;
 import java.util.List;
 
-public interface BoardState extends Serializable {
+public interface BoardState {
 
     ObjectProperty<PlayerColor> getPlayerTurnProperty();
 

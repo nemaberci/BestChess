@@ -5,7 +5,7 @@ import javafx.beans.property.ObjectProperty;
 
 import java.io.Serializable;
 
-public interface Piece extends Serializable {
+public interface Piece {
 
     ObjectProperty<PlayerColor> getPlayerColorProperty();
 

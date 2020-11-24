@@ -8,10 +8,7 @@ import lombok.Getter;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 public class BoardStateImpl implements BoardState {
@@ -65,6 +62,36 @@ public class BoardStateImpl implements BoardState {
             pieces.add(piece);
             tiles.get(x).get(y).getPieceProperty().set(piece);
         }
+    }
+
+    private Piece findPieceWithID(Integer ID) {
+
+        for (PlayerColor playerColor: Arrays.asList(PlayerColor.WHITE, PlayerColor.BLACK)) {
+
+            for (Piece piece: piecesProperty.get(playerColor)) {
+
+                if (ID.equals(piece.getIDProperty().get())) {
+
+                    return piece;
+
+                }
+
+            }
+
+        }
+
+        for (Piece piece: takenPiecesProperty.get()) {
+
+            if (ID.equals(piece.getIDProperty().get())) {
+
+                return piece;
+
+            }
+
+        }
+
+        return null;
+
     }
 
     private List<List<Tile>> generateTiles() {
@@ -360,6 +387,129 @@ public class BoardStateImpl implements BoardState {
             }
 
         }
+
+    }
+
+    public BoardStateImpl(SerializableBoardState serializableBoardState) {
+
+        playerTurnProperty = new SimpleObjectProperty<>(
+                serializableBoardState.getPlayerColor()
+        );
+
+        tilesProperty = new SimpleListProperty<>(
+                FXCollections.observableList(new ArrayList<>())
+        );
+
+        for (int x = 0; x < 8; x++) {
+
+            tilesProperty.add(
+                    new ArrayList<>()
+            );
+
+            for (int y = 0; y < 8; y++) {
+
+                tilesProperty.get(x).add(
+                        new TileImpl(null, x, y)
+                );
+
+            }
+
+        }
+
+        piecesProperty = new SimpleMapProperty<>(
+                FXCollections.observableMap(new HashMap<>())
+        );
+
+        for (PlayerColor playerColor: Arrays.asList(PlayerColor.WHITE, PlayerColor.BLACK)) {
+
+            piecesProperty.put(
+                playerColor,
+                new ArrayList<>()
+            );
+
+            for (SerializablePiece serializablePiece : serializableBoardState.getPieces().get(playerColor)) {
+
+                Piece piece = new PieceImpl(
+                        tilesProperty
+                                .get(serializablePiece.getTile().getX())
+                                .get(serializablePiece.getTile().getY()),
+                        serializablePiece.getPieceType(),
+                        serializablePiece.getPlayerColor(),
+                        serializablePiece.getID()
+                );
+
+                piecesProperty.get(playerColor).add(
+                        piece
+                );
+
+            }
+        }
+
+        movesProperty = new SimpleListProperty<>(
+                FXCollections.observableList(new ArrayList<>())
+        );
+
+        for (SerializableMove serializableMove: serializableBoardState.getMoves()) {
+
+            Move move = new MoveImpl();
+
+            move.setPiece(
+                    findPieceWithID(serializableMove.getPiece().getID())
+            );
+
+            move.setBoardState(this);
+
+            move.setSourceTile(
+                    tilesProperty.get(
+                            serializableMove.getSourceTile().getX()
+                    ).get(
+                            serializableMove.getSourceTile().getY()
+                    )
+            );
+
+            move.setTargetTile(
+                    tilesProperty.get(
+                            serializableMove.getTargetTile().getX()
+                    ).get(
+                            serializableMove.getTargetTile().getY()
+                    )
+            );
+
+            movesProperty.add(
+                    move
+            );
+
+        }
+
+        takenPiecesProperty = new SimpleListProperty<>(
+                FXCollections.observableList(new ArrayList<>())
+        );
+
+        for (SerializablePiece serializablePiece: serializableBoardState.getTakenPieces()) {
+
+            takenPiecesProperty.add(
+                    new PieceImpl(null,
+                            serializablePiece.getPieceType(),
+                            serializablePiece.getPlayerColor(),
+                            serializablePiece.getID())
+            );
+
+        }
+
+        ChessClock chessClock = new ChessClockImpl(
+                0,
+                serializableBoardState.getChessClock().getIncrement()
+        );
+
+        chessClock.getBlackTimeProperty().set(
+                serializableBoardState.getChessClock().getBlackTime()
+        );
+
+        chessClock.getWhiteTimeProperty().set(
+                serializableBoardState.getChessClock().getWhiteTime()
+        );
+
+        chessClockProperty = new SimpleObjectProperty<>(chessClock);
 
     }
 

@@ -14,6 +14,8 @@
             <TextField fx:id="clockIncrement" layoutX="14.0" layoutY="109.0" text="1" />
          </children></Pane>
       <CheckBox fx:id="chessClockEnabled" layoutX="315.0" layoutY="45.0" mnemonicParsing="false" text="Chess clock" />
-      <Button fx:id="startButton" layoutX="76.0" layoutY="272.0" mnemonicParsing="false" text="Start Game" />
+      <Button fx:id="startButton" layoutX="88.0" layoutY="272.0" mnemonicParsing="false" text="New Game" />
+      <Button fx:id="continueGame" layoutX="88.0" layoutY="231.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="76.0" text="Continue" />
+      <Button fx:id="deleteSavedGame" layoutX="68.0" layoutY="195.0" mnemonicParsing="false" text="Delete Saved Game" />
    </children>
 </AnchorPane>

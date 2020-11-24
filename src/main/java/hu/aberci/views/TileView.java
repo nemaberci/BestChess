@@ -3,15 +3,10 @@ package hu.aberci.views;
 import hu.aberci.entities.data.MoveImpl;
 import hu.aberci.entities.events.ChessPieceEvent;
 import hu.aberci.entities.interfaces.Tile;
-import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
-import javafx.collections.SetChangeListener;
 import javafx.event.EventHandler;
-import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import lombok.Getter;
@@ -83,7 +78,7 @@ public class TileView extends StackPane {
 
                             parent.fireEvent(
                                     new ChessPieceEvent(
-                                            ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_MOVE,
+                                            ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_MOVING,
                                             new MoveImpl(parent.getBoardStateProperty().get(), tileProperty.get(), parent.getSelectedPieceView().get().getPieceProperty().get())
                                     )
                             );

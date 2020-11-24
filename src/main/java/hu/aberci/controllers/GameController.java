@@ -1,6 +1,8 @@
 package hu.aberci.controllers;
 
+import hu.aberci.entities.data.SerializableBoardStateImpl;
 import hu.aberci.entities.events.ChessBoardEvent;
+import hu.aberci.entities.events.ChessPieceEvent;
 import hu.aberci.entities.interfaces.PlayerColor;
 import hu.aberci.main.GameMain;
 import hu.aberci.views.ChessBoardView;
@@ -16,6 +18,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import lombok.Getter;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -47,6 +52,8 @@ public class GameController implements Initializable {
         int clockTime = 0;
         int clockIncrement = 0;
 
+        chessGameController = new ChessGameController(null, clockTime, clockIncrement);
+
         try {
 
             MenuController menuController = GameMain.getMenuController();
@@ -61,8 +68,6 @@ public class GameController implements Initializable {
 
         }
 
-        chessGameController = new ChessGameController(null, clockTime, clockIncrement);
-
         time = clockTime;
         increment = clockIncrement;
 
@@ -70,6 +75,23 @@ public class GameController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        try {
+
+            MenuController menuController = GameMain.getMenuController();
+            menuController.initialize();
+
+            if (menuController.getBoardState() != null) {
+
+                chessGameController = new ChessGameController(null, menuController.getBoardState());
+
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
 
         chessGameController.setParent(gridPane);
 
@@ -120,7 +142,6 @@ public class GameController implements Initializable {
                                     new Scene(loader.load())
                             );
 
-
                         } catch (Exception exception) {
                             exception.printStackTrace();
                         }
@@ -152,6 +173,37 @@ public class GameController implements Initializable {
 
                     textArea.setText("Draw");
                     newGame.setVisible(true);
+
+                }
+        );
+
+        chessBoard.addEventHandler(
+                ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_MOVED,
+                chessPieceEvent -> {
+
+                    try {
+
+                        File file = new File(GameMain.savedGameFileName);
+
+                        if (file.isFile()) {
+
+                            file.delete();
+
+                        }
+
+                        FileOutputStream fileOutputStream = new FileOutputStream(GameMain.savedGameFileName);
+                        ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+
+                        objectOutputStream.writeObject(new SerializableBoardStateImpl(chessBoard.getBoardStateProperty().get()));
+
+                        objectOutputStream.close();
+                        fileOutputStream.close();
+
+                    } catch (Exception exception) {
+
+                        exception.printStackTrace();
+
+                    }
 
                 }
         );

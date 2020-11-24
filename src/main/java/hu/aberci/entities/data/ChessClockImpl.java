@@ -5,13 +5,16 @@ import hu.aberci.entities.interfaces.PlayerColor;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.concurrent.*;
 
 public class ChessClockImpl implements ChessClock {
 
     @Getter
+    @Setter
     int increment;
 
     @Getter
@@ -69,6 +72,10 @@ public class ChessClockImpl implements ChessClock {
 
         scheduledExecutorService = Executors.newScheduledThreadPool(1);
 
+        playerTurnProperty = new SimpleObjectProperty<>(
+                PlayerColor.WHITE
+        );
+
         runningClock = null;
 
     }
@@ -79,6 +86,10 @@ public class ChessClockImpl implements ChessClock {
 
         whiteTimeProperty = new SimpleIntegerProperty(chessClock.getWhiteTimeProperty().get());
         blackTimeProperty = new SimpleIntegerProperty(chessClock.getBlackTimeProperty().get());
+
+        playerTurnProperty = new SimpleObjectProperty<>(
+                chessClock.getPlayerTurnProperty().get()
+        );
 
     }
 

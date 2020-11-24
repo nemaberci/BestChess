@@ -1,5 +1,9 @@
 package hu.aberci.controllers;
 
+import hu.aberci.entities.data.BoardStateImpl;
+import hu.aberci.entities.interfaces.BoardState;
+import hu.aberci.entities.interfaces.SerializableBoardState;
+import hu.aberci.main.GameMain;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -10,9 +14,14 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import lombok.Getter;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 
 public class MenuController {
 
@@ -34,6 +43,12 @@ public class MenuController {
     @FXML
     private Button startButton;
 
+    @FXML
+    Button continueGame;
+
+    @FXML
+    Button deleteSavedGame;
+
     public void AIEnabledChanged() {
 
         // System.out.println("AI IS ENABLED:" + AIEnabled.isSelected());
@@ -44,10 +59,49 @@ public class MenuController {
     @FXML
     private CheckBox chessClockEnabled;
 
+    @Getter
+    private BoardState boardState;
+
+    public MenuController() {
+
+        boardState = null;
+
+    }
+
     @FXML
     public void initialize() {
 
-        // System.out.println("This was called");
+        try {
+
+            if (new File(GameMain.savedGameFileName).isFile()) {
+
+                FileInputStream fileInputStream = new FileInputStream(GameMain.savedGameFileName);
+                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+
+                boardState = new BoardStateImpl((SerializableBoardState) objectInputStream.readObject());
+
+                objectInputStream.close();
+                fileInputStream.close();
+
+            } else {
+
+                continueGame.setVisible(false);
+                deleteSavedGame.setVisible(false);
+
+            }
+
+        } catch (Exception exception) {
+
+            exception.printStackTrace();
+
+            continueGame.setVisible(false);
+            deleteSavedGame.setVisible(false);
+
+        }
+
+        continueGame.visibleProperty().bindBidirectional(
+                deleteSavedGame.visibleProperty()
+        );
 
         chessClockConfig.visibleProperty().bind(
                 chessClockEnabled.selectedProperty()
@@ -96,6 +150,8 @@ public class MenuController {
                     public void handle(ActionEvent actionEvent) {
                         try {
 
+                            boardState = null;
+
                             final FXMLLoader loader = new FXMLLoader(
                                     MenuController.class.getResource("/fxml/game.fxml")
                             );
@@ -106,10 +162,61 @@ public class MenuController {
                                     new Scene(loader.load())
                             );
 
-
                         } catch (Exception exception) {
                             exception.printStackTrace();
                         }
+                    }
+                }
+        );
+
+        continueGame.setOnMouseClicked(
+                new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent mouseEvent) {
+
+                        File file = new File(GameMain.savedGameFileName);
+
+                        if (file.isFile()) {
+
+                            try {
+
+                                FileInputStream fileInputStream = new FileInputStream(GameMain.savedGameFileName);
+                                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+
+                                boardState = new BoardStateImpl((SerializableBoardState) objectInputStream.readObject());
+
+                                objectInputStream.close();
+                                fileInputStream.close();
+
+                                startButton.fire();
+
+                            } catch (Exception exception) {
+
+                                exception.printStackTrace();
+
+                            }
+
+                        }
+
+                    }
+                }
+        );
+
+        deleteSavedGame.setOnMouseClicked(
+                new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent mouseEvent) {
+
+                        File file = new File(GameMain.savedGameFileName);
+
+                        if (file.isFile()) {
+
+                            file.delete();
+                            deleteSavedGame.setVisible(false);
+                            boardState = null;
+
+                        }
+
                     }
                 }
         );

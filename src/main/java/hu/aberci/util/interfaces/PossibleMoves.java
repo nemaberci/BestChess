@@ -4,11 +4,12 @@ import hu.aberci.entities.interfaces.BoardState;
 import hu.aberci.entities.interfaces.Piece;
 import hu.aberci.entities.interfaces.Tile;
 
+import java.io.Serializable;
 import java.util.Set;
 
 @FunctionalInterface
 public
-interface PossibleMoves {
+interface PossibleMoves extends Serializable {
 
     Set<Tile> possibleMoves(BoardState boardState, Piece piece);
 

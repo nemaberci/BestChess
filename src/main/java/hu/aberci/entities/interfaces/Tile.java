@@ -5,7 +5,7 @@ import javafx.beans.property.ObjectProperty;
 
 import java.io.Serializable;
 
-public interface Tile extends Serializable {
+public interface Tile {
 
     ObjectProperty<Piece> getPieceProperty();
 

@@ -8,10 +8,15 @@ import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
 import lombok.Getter;
 
+import java.io.File;
+import java.io.ObjectInputStream;
+
 public class GameMain extends Application {
 
     @Getter
     private static MenuController menuController;
+
+    public static String savedGameFileName = "savegame.data";
 
     public static void main(String args[]) {
 

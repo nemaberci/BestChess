@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import hu.aberci.views.*?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<?import hu.aberci.views.ChessBoardView?>
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hu.aberci.controllers.GameController">
    <children>
-      <Pane layoutX="400.0" prefHeight="400.0" prefWidth="200.0" style="-fx-background-color: grey;" />
+      <Pane layoutX="400.0" prefHeight="400.0" prefWidth="200.0" style="-fx-background-color: grey;">
+         <children>
+            <Button fx:id="backToMenu" layoutX="56.0" layoutY="291.0" mnemonicParsing="false" text="Back to Menu" />
+            <Button fx:id="newGame" layoutX="63.0" layoutY="252.0" mnemonicParsing="false" text="New Game" />
+            <TextArea fx:id="textArea" editable="false" layoutY="61.0" prefHeight="128.0" prefWidth="200.0" style="-fx-font-size: 25;" />
+         </children></Pane>
       <ChessBoardView fx:id="gridPane" prefHeight="400.0" prefWidth="400.0">
       </ChessBoardView>
    </children>

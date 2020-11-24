@@ -1,7 +1,6 @@
 package hu.aberci.views;
 
 import hu.aberci.controllers.ChessGameController;
-import hu.aberci.controllers.GameController;
 import hu.aberci.entities.events.ChessPieceEvent;
 import hu.aberci.entities.interfaces.BoardState;
 import hu.aberci.entities.interfaces.Piece;
@@ -11,22 +10,16 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
-import javafx.collections.ObservableSet;
 import javafx.event.EventHandler;
-import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 public class ChessBoardView extends GridPane {
@@ -56,7 +49,7 @@ public class ChessBoardView extends GridPane {
         );
 
         addEventHandler(
-                ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_MOVE,
+                ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_MOVING,
                 new EventHandler<ChessPieceEvent>() {
                     @Override
                     public void handle(ChessPieceEvent chessPieceEvent) {
