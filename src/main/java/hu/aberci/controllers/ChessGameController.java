@@ -228,7 +228,8 @@ public class ChessGameController {
                                         boardStateProperty.get(),
                                         boardStateProperty.get().getTilesProperty().get(kingX).get(kingY),
                                         boardStateProperty.get().getTilesProperty().get(kingX).get(futureY),
-                                        piece
+                                        piece,
+                                        false
                                 )
                         );
 
@@ -237,7 +238,8 @@ public class ChessGameController {
                                         boardStateProperty.get(),
                                         boardStateProperty.get().getTilesProperty().get(kingX).get(kingY),
                                         boardStateProperty.get().getTilesProperty().get(kingX).get((rookY > kingY) ? kingY + 1 : kingY - 1),
-                                        piece
+                                        piece,
+                                        false
                                 )
                         );
 
@@ -246,7 +248,8 @@ public class ChessGameController {
                                         boardStateProperty.get(),
                                         boardStateProperty.get().getTilesProperty().get(kingX).get(kingY),
                                         boardStateProperty.get().getTilesProperty().get(kingX).get(kingY),
-                                        piece
+                                        piece,
+                                        false
                                 )
                         );
 
@@ -457,7 +460,7 @@ public class ChessGameController {
 
         newBoardState.getMovesProperty().add(
                 new MoveImpl(
-                        newBoardState, newBoardState.getTilesProperty().get(pieceX).get(pieceY), tileInNewBoardState, pieceInNewBoardState
+                        newBoardState, newBoardState.getTilesProperty().get(pieceX).get(pieceY), tileInNewBoardState, pieceInNewBoardState, tile.getPieceProperty().get() != null
                 )
         );
 
@@ -482,7 +485,7 @@ public class ChessGameController {
             // they are promoting
             if (piece.getTileProperty().get().getXProperty().get() == 0 || piece.getTileProperty().get().getXProperty().get() == 7) {
 
-                parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PAWN_PROMOTION, new MoveImpl(newBoardState, tile, piece)));
+                parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PAWN_PROMOTION, new MoveImpl(newBoardState, tile, piece, tile.getPieceProperty().get() != null)));
 
             }
 
@@ -490,12 +493,14 @@ public class ChessGameController {
 
         if (tile.getPieceProperty().get() != null) {
 
-            parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_TAKEN, new MoveImpl(newBoardState, tile, piece)));
+            parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_TAKEN, new MoveImpl(newBoardState, tile, piece, true)));
 
         }
 
         // What caused the piece moved event does not matter, we only want to know when it happens
         parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_MOVED, new MoveImpl()));
+
+        System.out.println(boardStateProperty.get().getFEN());
 
     }
 

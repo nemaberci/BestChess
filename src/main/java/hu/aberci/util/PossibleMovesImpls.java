@@ -97,7 +97,7 @@ public class PossibleMovesImpls {
         int pieceX = piece.getTileProperty().get().getXProperty().get();
         int pieceY = piece.getTileProperty().get().getYProperty().get();
 
-        for (int x = 0; x < 7; x++) {
+        for (int x = 0; x < 8; x++) {
 
             if (x == pieceX) {
                 continue;
@@ -111,7 +111,7 @@ public class PossibleMovesImpls {
 
         }
 
-        for (int y = 0; y < 7; y++) {
+        for (int y = 0; y < 8; y++) {
 
             if (y == pieceY) {
                 continue;

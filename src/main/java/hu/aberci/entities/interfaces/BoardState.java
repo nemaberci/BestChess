@@ -23,4 +23,6 @@ public interface BoardState {
 
     ListProperty<Move> getMovesProperty();
 
+    String getFEN();
+
 }

@@ -338,7 +338,9 @@ public class BoardStateImpl implements BoardState {
 
             for (Move move : boardState.getMovesProperty().get()) {
 
-                Move newMove = new MoveImpl();
+                Move newMove = new MoveImpl().setCapture(
+                        move.isCapture()
+                );
 
                 newMove.setBoardState(boardState);
 
@@ -445,6 +447,21 @@ public class BoardStateImpl implements BoardState {
             }
         }
 
+        takenPiecesProperty = new SimpleListProperty<>(
+                FXCollections.observableList(new ArrayList<>())
+        );
+
+        for (SerializablePiece serializablePiece: serializableBoardState.getTakenPieces()) {
+
+            takenPiecesProperty.add(
+                    new PieceImpl(null,
+                            serializablePiece.getPieceType(),
+                            serializablePiece.getPlayerColor(),
+                            serializablePiece.getID())
+            );
+
+        }
+
         movesProperty = new SimpleListProperty<>(
                 FXCollections.observableList(new ArrayList<>())
         );
@@ -481,21 +498,6 @@ public class BoardStateImpl implements BoardState {
 
         }
 
-        takenPiecesProperty = new SimpleListProperty<>(
-                FXCollections.observableList(new ArrayList<>())
-        );
-
-        for (SerializablePiece serializablePiece: serializableBoardState.getTakenPieces()) {
-
-            takenPiecesProperty.add(
-                    new PieceImpl(null,
-                            serializablePiece.getPieceType(),
-                            serializablePiece.getPlayerColor(),
-                            serializablePiece.getID())
-            );
-
-        }
-
         ChessClock chessClock = new ChessClockImpl(
                 0,
                 serializableBoardState.getChessClock().getIncrement()
@@ -510,6 +512,251 @@ public class BoardStateImpl implements BoardState {
         );
 
         chessClockProperty = new SimpleObjectProperty<>(chessClock);
+
+    }
+
+    public String getFEN() {
+
+        StringBuilder toReturn = new StringBuilder();
+
+        int toSkip = 0;
+
+        for (int x = 7; x >= 0; x--) {
+
+            for (int y = 0; y < 8; y++) {
+
+                Tile tile = tilesProperty.get(x).get(y);
+
+                if (tile.getPieceProperty().get() == null) {
+                    toSkip++;
+                } else {
+                    char letter = 'p';
+                    switch (tile.getPieceProperty().get().getPieceTypeProperty().get()) {
+
+                        case BISHOP:
+                            letter = 'b';
+                            break;
+                        case QUEEN:
+                            letter = 'q';
+                            break;
+                        case ROOK:
+                            letter = 'r';
+                            break;
+                        case KNIGHT:
+                            letter = 'n';
+                            break;
+                        case KING:
+                            letter = 'k';
+                            break;
+                        case PAWN:
+                            letter = 'p';
+                            break;
+
+                    }
+                    if (PlayerColor.WHITE.equals(tile.getPieceProperty().get().getPlayerColorProperty().get())) {
+                        letter = Character.toUpperCase(letter);
+                    }
+                    if (toSkip != 0) {
+                        toReturn.append(toSkip);
+                        toSkip = 0;
+                    }
+                    toReturn.append(letter);
+
+                }
+
+            }
+
+            if (toSkip != 0) {
+                toReturn.append(toSkip);
+            }
+
+            toSkip = 0;
+
+            if (x != 0) {
+
+                toReturn.append("/");
+
+            }
+
+        }
+
+        toReturn.append(" ");
+
+        if (PlayerColor.WHITE.equals(playerTurnProperty.get())) {
+
+            toReturn.append("w");
+
+        } else {
+
+            toReturn.append("b");
+
+        }
+
+        toReturn.append(" ");
+
+        Integer whiteRookKingID = -1, whiteRookQueenID = -1, blackRookKingID = -1, blackRookQueenID = -1;
+
+        for (Piece whitePiece: piecesProperty.get(PlayerColor.WHITE)) {
+
+            if (PieceType.ROOK.equals(whitePiece.getPieceTypeProperty().get())) {
+
+                if (whitePiece.getTileProperty().get().getXProperty().get() == 0) {
+
+                    if (whitePiece.getTileProperty().get().getYProperty().get() == 0) {
+
+                        whiteRookQueenID = whitePiece.getIDProperty().get();
+
+                    }
+
+                    if (whitePiece.getTileProperty().get().getYProperty().get() == 7) {
+
+                        whiteRookKingID = whitePiece.getIDProperty().get();
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        for (Piece blackPiece: piecesProperty.get(PlayerColor.BLACK)) {
+
+            if (PieceType.ROOK.equals(blackPiece.getPieceTypeProperty().get())) {
+
+                if (blackPiece.getTileProperty().get().getXProperty().get() == 7) {
+
+                    if (blackPiece.getTileProperty().get().getYProperty().get() == 0) {
+
+                        blackRookQueenID = blackPiece.getIDProperty().get();
+
+                    }
+
+                    if (blackPiece.getTileProperty().get().getYProperty().get() == 7) {
+
+                        blackRookKingID = blackPiece.getIDProperty().get();
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        boolean canBlackCastleKingside = blackRookKingID != -1;
+        boolean canBlackCastleQueenside = blackRookQueenID != -1;
+        boolean canWhiteCastleKingside = whiteRookKingID != -1;
+        boolean canWhiteCastleQueenside = whiteRookQueenID != -1;
+
+        for (Move move: movesProperty.get()) {
+
+            if (PieceType.KING.equals(move.getPiece().getPieceTypeProperty().get())) {
+                if (PlayerColor.BLACK.equals(move.getPiece().getPlayerColorProperty().get())) {
+                    canBlackCastleKingside = false;
+                    canBlackCastleQueenside = false;
+                } else {
+                    canWhiteCastleKingside = false;
+                    canWhiteCastleQueenside = false;
+                }
+            }
+
+            if (move.getPiece().getIDProperty().get() == whiteRookKingID) {
+                canWhiteCastleKingside = false;
+            }
+
+            if (move.getPiece().getIDProperty().get() == whiteRookQueenID) {
+                canWhiteCastleQueenside = false;
+            }
+
+            if (move.getPiece().getIDProperty().get() == blackRookKingID) {
+                canBlackCastleKingside = false;
+            }
+
+            if (move.getPiece().getIDProperty().get() == blackRookQueenID) {
+                canBlackCastleQueenside = false;
+            }
+
+        }
+
+        if (!canBlackCastleKingside && !canBlackCastleQueenside && !canWhiteCastleKingside && !canWhiteCastleQueenside) {
+
+            toReturn.append("-");
+
+        } else {
+
+            if (canWhiteCastleKingside) {
+                toReturn.append("K");
+            }
+            if (canWhiteCastleQueenside) {
+                toReturn.append("Q");
+            }
+            if (canBlackCastleKingside) {
+                toReturn.append("k");
+            }
+            if (canBlackCastleQueenside) {
+                toReturn.append("q");
+            }
+
+        }
+
+        toReturn.append(" ");
+
+        if (movesProperty.size() != 0) {
+
+            if (PieceType.PAWN.equals(movesProperty.get(movesProperty.size() - 1).getPiece().getPieceTypeProperty().get()) &&
+                Math.abs(
+                        movesProperty.get(movesProperty.size() - 1).getSourceTile().getXProperty().get()
+                      - movesProperty.get(movesProperty.size() - 1).getTargetTile().getXProperty().get()
+                ) == 2) {
+
+                char letter = (char) ('a' + (movesProperty.get(movesProperty.size() - 1).getTargetTile().getYProperty().get()));
+                int number = ((movesProperty.get(movesProperty.size() - 1).getTargetTile().getXProperty().get() + movesProperty.get(movesProperty.size() - 1).getSourceTile().getXProperty().get()) / 2) + 1;
+
+                toReturn.append(letter);
+                toReturn.append(number);
+
+            } else {
+
+                toReturn.append("-");
+
+            }
+
+        } else {
+            toReturn.append("-");
+        }
+
+        toReturn.append(" ");
+
+        if (movesProperty.size() != 0) {
+
+            int counter = 0;
+
+            for (int i = movesProperty.size() - 1; i >= 0; i--) {
+
+                if (movesProperty.get(i).isCapture() || PieceType.PAWN.equals(movesProperty.get(i).getPiece().getPieceTypeProperty().get())) {
+
+                    break;
+
+                }
+
+                counter++;
+
+            }
+
+            toReturn.append(counter);
+
+        } else {
+
+            toReturn.append(0);
+
+        }
+
+        toReturn.append(" ");
+
+        toReturn.append(movesProperty.size() / 2);
+
+        return toReturn.toString();
 
     }
 

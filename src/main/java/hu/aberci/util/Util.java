@@ -16,11 +16,11 @@ public class Util {
 
         Set<Tile> possibleTiles = piece.getPieceTypeProperty().get().possibleMoves.possibleMoves(boardState, piece);
         Stream<MoveImpl> possibleMoves = possibleTiles.stream()
-                .map(tile -> new MoveImpl(boardState, tile, piece))
+                .map(tile -> new MoveImpl(boardState, tile, piece, false))
                 .filter(Predicates.pieceOnTileIsNotOfPlayerColor)
                 .filter(Predicates.isPlayerNotInCheckAfterMove);
 
-        System.out.println("Moves after first filter: " +
+        /*System.out.println("Moves after first filter: " +
                 possibleTiles.stream()
                 .map(tile -> new MoveImpl(boardState, tile, piece))
                 .filter(Predicates.pieceOnTileIsNotOfPlayerColor).collect(Collectors.toSet()).size()
@@ -30,18 +30,18 @@ public class Util {
                 .map(tile -> new MoveImpl(boardState, tile, piece))
                 .filter(Predicates.pieceOnTileIsNotOfPlayerColor)
                 .filter(Predicates.isPlayerNotInCheckAfterMove).collect(Collectors.toSet()).size()
-        );
+        );*/
 
         if (piece.getPieceTypeProperty().get() != PieceType.KNIGHT) {
 
             possibleMoves = possibleMoves.filter(Predicates.isTargetTileReachableFromPiece);
 
-            System.out.println("Moves after (third) filter: " + possibleTiles.stream()
+            /*System.out.println("Moves after (third) filter: " + possibleTiles.stream()
                     .map(tile -> new MoveImpl(boardState, tile, piece))
                     .filter(Predicates.pieceOnTileIsNotOfPlayerColor)
                     .filter(Predicates.isPlayerNotInCheckAfterMove)
                     .filter(Predicates.isTargetTileReachableFromPiece).collect(Collectors.toSet()).size()
-            );
+            );*/
 
         }
 

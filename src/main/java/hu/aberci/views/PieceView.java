@@ -56,7 +56,7 @@ public class PieceView extends Button {
                                     );
                                     parentBoard.fireEvent(
                                             new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_SELECTED,
-                                                    new MoveImpl(parentBoard.getBoardStateProperty().get(), null, me.getPieceProperty().get()))
+                                                    new MoveImpl(parentBoard.getBoardStateProperty().get(), null, me.getPieceProperty().get(), false))
                                     );
                                 }
                             }
@@ -70,7 +70,7 @@ public class PieceView extends Button {
                                 );
                                 parentBoard.fireEvent(
                                         new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_SELECTED,
-                                                new MoveImpl(parentBoard.getBoardStateProperty().get(), null, me.getPieceProperty().get()))
+                                                new MoveImpl(parentBoard.getBoardStateProperty().get(), null, me.getPieceProperty().get(), false))
                                 );
                             }
 

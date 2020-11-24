@@ -148,7 +148,9 @@ public class ChessBoardView extends GridPane {
 
                             TileView tileView = new TileView(this, tile);
                             tileViews.get(tile.getXProperty().get()).add(tileView);
-                            add(tileView, tile.getXProperty().get(), tile.getYProperty().get());
+
+                            // I messed up my coordinate system kind-of, so we display them correctly now
+                            add(tileView, tile.getYProperty().get(), 7 - tile.getXProperty().get());
                             // System.out.println("ADDED NEW TILEVIEW AT " + tile.getXProperty().get() + ", " + tile.getYProperty().get());
 
                             tileView.setPrefSize(50, 50);

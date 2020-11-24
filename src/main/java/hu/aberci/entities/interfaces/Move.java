@@ -6,9 +6,10 @@ public interface Move {
     BoardState getBoardState();
     Tile getTargetTile();
     Tile getSourceTile();
-    void setTargetTile(Tile tile);
-    void setSourceTile(Tile tile);
-    void setBoardState(BoardState boardState);
-    void setPiece(Piece piece);
+    Move setTargetTile(Tile tile);
+    Move setSourceTile(Tile tile);
+    Move setBoardState(BoardState boardState);
+    Move setPiece(Piece piece);
+    boolean isCapture();
 
 }

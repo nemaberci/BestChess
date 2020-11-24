@@ -8,9 +8,11 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Data
 @NoArgsConstructor
+@Accessors(chain = true)
 public class MoveImpl implements Move {
 
     BoardState boardState;
@@ -21,21 +23,25 @@ public class MoveImpl implements Move {
 
     Piece piece;
 
-    public MoveImpl(BoardState b, Tile t, Piece p) {
+    boolean capture;
+
+    public MoveImpl(BoardState b, Tile t, Piece p, boolean isCapture) {
 
         boardState = b;
         targetTile = t;
         piece = p;
         sourceTile = p.getTileProperty().get();
+        capture = isCapture;
 
     }
 
-    public MoveImpl(BoardState b, Tile sourceTile1, Tile targetTile1, Piece p) {
+    public MoveImpl(BoardState b, Tile sourceTile1, Tile targetTile1, Piece p, boolean isCapture) {
 
         targetTile = targetTile1;
         sourceTile = sourceTile1;
         piece = p;
         boardState = b;
+        capture = isCapture;
 
     }
 

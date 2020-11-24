@@ -79,7 +79,7 @@ public class TileView extends StackPane {
                             parent.fireEvent(
                                     new ChessPieceEvent(
                                             ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_MOVING,
-                                            new MoveImpl(parent.getBoardStateProperty().get(), tileProperty.get(), parent.getSelectedPieceView().get().getPieceProperty().get())
+                                            new MoveImpl(parent.getBoardStateProperty().get(), tileProperty.get(), parent.getSelectedPieceView().get().getPieceProperty().get(), tileProperty.get().getPieceProperty() != null)
                                     )
                             );
 

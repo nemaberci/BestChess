@@ -82,7 +82,7 @@ public class Predicates {
                     .possibleMoves.possibleMoves(boardState, opponentPiece);
 
             Stream<Move> possibleMoves = possibleTiles.stream().map(
-                    tile -> new MoveImpl(boardState, tile, opponentPiece)
+                    tile -> new MoveImpl(boardState, tile, opponentPiece, false)
             );
 
             possibleMoves = possibleMoves
