@@ -43,16 +43,28 @@ public class PieceView extends Button {
                     @Override
                     public void handle(MouseEvent mouseEvent) {
 
-                        System.out.println("I WAS CLICKED, I CONTAIN A PIECE " + pieceProperty.get().getPieceTypeProperty().get() + " THAT IS " + pieceProperty.get().getPlayerColorProperty().get());
-
                         if (parentBoard.getSelectedPieceView().get() != null) {
 
                             if (parentBoard.getSelectedPieceLegalMoves().contains(
                                     getParent()
                             )) {
-                                System.out.println("Parent was selected");
                                 getParent().fireEvent(mouseEvent);
                             } else {
+                                if (parentBoard.getBoardStateProperty().get().getPlayerTurnProperty().get() == pieceProperty.get().getPlayerColorProperty().get()) {
+                                    parentBoard.selectedPieceView.set(
+                                            me
+                                    );
+                                    parentBoard.fireEvent(
+                                            new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_SELECTED,
+                                                    new MoveImpl(parentBoard.getBoardStateProperty().get(), null, me.getPieceProperty().get()))
+                                    );
+                                }
+                            }
+
+                        } else {
+
+                            // if it is my turn
+                            if (parentBoard.getBoardStateProperty().get().getPlayerTurnProperty().get() == pieceProperty.get().getPlayerColorProperty().get()) {
                                 parentBoard.selectedPieceView.set(
                                         me
                                 );
@@ -61,17 +73,6 @@ public class PieceView extends Button {
                                                 new MoveImpl(parentBoard.getBoardStateProperty().get(), null, me.getPieceProperty().get()))
                                 );
                             }
-
-                        } else {
-
-                            // I cannot use set(this) in here so I created a proxy for this
-                            parentBoard.selectedPieceView.set(
-                                    me
-                            );
-                            parentBoard.fireEvent(
-                                    new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_SELECTED,
-                                            new MoveImpl(parentBoard.getBoardStateProperty().get(), null, me.getPieceProperty().get()))
-                            );
 
                         }
 

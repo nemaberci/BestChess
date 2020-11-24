@@ -23,7 +23,7 @@ public class GameMain extends Application {
 
         stage.setTitle("BestChess");
 
-        System.out.println(getClass().getClassLoader().getResource("fxml/menu.fxml"));
+        // System.out.println(getClass().getClassLoader().getResource("fxml/menu.fxml"));
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/menu.fxml"));
         AnchorPane p = fxmlLoader.load();
 

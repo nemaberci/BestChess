@@ -36,7 +36,7 @@ public class MenuController {
 
     public void AIEnabledChanged() {
 
-        System.out.println("AI IS ENABLED:" + AIEnabled.isSelected());
+        // System.out.println("AI IS ENABLED:" + AIEnabled.isSelected());
 
     }
 
@@ -47,7 +47,7 @@ public class MenuController {
     @FXML
     public void initialize() {
 
-        System.out.println("This was called");
+        // System.out.println("This was called");
 
         chessClockConfig.visibleProperty().bind(
                 chessClockEnabled.selectedProperty()

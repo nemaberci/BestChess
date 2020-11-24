@@ -11,6 +11,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Predicates {
 
@@ -20,20 +21,6 @@ public class Predicates {
         }
         return move.getTargetTile().getPieceProperty().get().getPlayerColorProperty().get() != move.getPiece().getPlayerColorProperty().get();
     };
-
-    private static boolean isTileInMoves(Set<Tile> moves, int x, int y) {
-
-        for (Tile tile: moves) {
-
-            if (tile.getXProperty().get() == x && tile.getYProperty().get() == y) {
-                return true;
-            }
-
-        }
-
-        return false;
-
-    }
 
     public static Predicate <Move> isTargetTileReachableFromPiece = (move) -> {
 
@@ -94,16 +81,17 @@ public class Predicates {
             Set<Tile> possibleTiles = opponentPiece.getPieceTypeProperty().get()
                     .possibleMoves.possibleMoves(boardState, opponentPiece);
 
-            Set<Move> possibleMoves = possibleTiles.stream().map(
+            Stream<Move> possibleMoves = possibleTiles.stream().map(
                     tile -> new MoveImpl(boardState, tile, opponentPiece)
-            ).collect(Collectors.toSet());
+            );
 
-            possibleMoves = possibleMoves.stream()
-                    .filter(pieceOnTileIsNotOfPlayerColor)
-                    .filter(isTargetTileReachableFromPiece)
-                    .collect(Collectors.toSet());
+            possibleMoves = possibleMoves
+                    .filter(pieceOnTileIsNotOfPlayerColor);
+            if (!PieceType.KNIGHT.equals(opponentPiece.getPieceTypeProperty().get())) {
+                    possibleMoves = possibleMoves.filter(isTargetTileReachableFromPiece);
+            }
 
-            Set<Tile> reachableTiles = possibleMoves.stream().map(
+            Set<Tile> reachableTiles = possibleMoves.map(
                     Move::getTargetTile
             ).collect(Collectors.toSet());
 
@@ -143,8 +131,22 @@ public class Predicates {
 
         }
 
-        newBoardState.getTilesProperty().get().get(targetTileX).get(targetTileY).getPieceProperty().set(sourcePieceInNewBoard);
+        if (newBoardState.getTilesProperty().get(targetTileX).get(targetTileY).getPieceProperty().get() != null) {
+
+            newBoardState.getPiecesProperty().get(
+                    PlayerColor.WHITE.equals(sourcePieceInNewBoard.getPlayerColorProperty().get()) ? PlayerColor.BLACK : PlayerColor.WHITE
+            ).remove(
+                    newBoardState.getTilesProperty().get(targetTileX).get(targetTileY).getPieceProperty().get()
+            );
+
+        }
+
         newBoardState.getTilesProperty().get().get(sourceTileX).get(sourceTileY).getPieceProperty().set(null);
+        newBoardState.getTilesProperty().get().get(targetTileX).get(targetTileY).getPieceProperty().set(sourcePieceInNewBoard);
+
+        sourcePieceInNewBoard.getTileProperty().set(
+                newBoardState.getTilesProperty().get(targetTileX).get(targetTileY)
+        );
 
         // we check if opponent has check now
 

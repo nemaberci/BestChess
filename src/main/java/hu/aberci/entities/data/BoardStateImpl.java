@@ -7,6 +7,7 @@ import javafx.collections.FXCollections;
 import lombok.Getter;
 import org.apache.commons.lang3.SerializationUtils;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -101,6 +102,9 @@ public class BoardStateImpl implements BoardState {
     @Getter
     ListProperty<Move> movesProperty;
 
+    @Getter
+    ListProperty<Piece> takenPiecesProperty;
+
     public BoardStateImpl(int startingTime, int increment, boolean generateTiles, boolean generatePieces) throws NoTilesException {
 
         chessClockProperty = new SimpleObjectProperty<>(
@@ -120,6 +124,12 @@ public class BoardStateImpl implements BoardState {
         );
 
         movesProperty = new SimpleListProperty<>(
+                FXCollections.observableList(
+                        new ArrayList<>()
+                )
+        );
+
+        takenPiecesProperty = new SimpleListProperty<>(
                 FXCollections.observableList(
                         new ArrayList<>()
                 )
@@ -198,16 +208,38 @@ public class BoardStateImpl implements BoardState {
         tilesProperty = new SimpleListProperty<>();
         tilesProperty.set(FXCollections.observableList(generateTiles()));
 
+        takenPiecesProperty = new SimpleListProperty<>(
+                FXCollections.observableList(
+                        new ArrayList<>()
+                )
+        );
+
         piecesProperty = new SimpleMapProperty<>();
         Map<PlayerColor, List<Piece>> map = new HashMap<>();
         List<Piece> whitePieces = new ArrayList<>();
         for (Piece piece: boardState.getPiecesProperty().get().get(PlayerColor.WHITE)) {
-            whitePieces.add(new PieceImpl(piece, this));
+            Piece newPiece = new PieceImpl(piece, this);
+            whitePieces.add(newPiece);
+            tilesProperty.get(
+                    piece.getTileProperty().get().getXProperty().get()
+            ).get(
+                    piece.getTileProperty().get().getYProperty().get()
+            ).getPieceProperty().set(
+                    newPiece
+            );
         }
         map.put(PlayerColor.WHITE, whitePieces);
         List<Piece> blackPieces = new ArrayList<>();
         for (Piece piece: boardState.getPiecesProperty().get().get(PlayerColor.BLACK)) {
-            blackPieces.add(new PieceImpl(piece, this));
+            Piece newPiece = new PieceImpl(piece, this);
+            blackPieces.add(newPiece);
+            tilesProperty.get(
+                    piece.getTileProperty().get().getXProperty().get()
+            ).get(
+                    piece.getTileProperty().get().getYProperty().get()
+            ).getPieceProperty().set(
+                    newPiece
+            );
         }
         map.put(PlayerColor.BLACK, blackPieces);
         piecesProperty.set(FXCollections.observableMap(map));
@@ -219,9 +251,115 @@ public class BoardStateImpl implements BoardState {
 
         /*
         * We do not replicate moves for the copy constructor
+        * We only replicate taken pieces when we replicate moves aswell
         *  */
 
         movesProperty = new SimpleListProperty<>();
+
+    }
+
+    public BoardStateImpl(BoardState boardState, boolean copyMoves) {
+
+        this(boardState);
+
+        if (copyMoves) {
+
+            movesProperty = new SimpleListProperty<>(
+                    FXCollections.observableList(new ArrayList<>())
+            );
+
+            for (Piece takenPiece: boardState.getTakenPiecesProperty().get()) {
+
+                takenPiecesProperty.add(
+                        new PieceImpl(null,
+                                takenPiece.getPieceTypeProperty().get(),
+                                takenPiece.getPlayerColorProperty().get(),
+                                takenPiece.getIDProperty().get())
+                );
+
+            }
+
+            for (Piece takenPiece: boardState.getTakenPiecesProperty().get()) {
+
+                PlayerColor pieceColor = takenPiece.getPlayerColorProperty().get();
+
+                int index = 0;
+
+                while (index < piecesProperty.get(pieceColor).size()) {
+
+                    Piece currentPiece = piecesProperty.get(pieceColor).get(index);
+
+                    if (currentPiece.equals(takenPiece)) {
+
+                        takenPiecesProperty.add(
+                                currentPiece
+                        );
+
+                        piecesProperty.get(pieceColor).remove(
+                                index
+                        );
+
+                        continue;
+
+                    }
+
+                    index++;
+
+                }
+
+            }
+
+            for (Move move : boardState.getMovesProperty().get()) {
+
+                Move newMove = new MoveImpl();
+
+                newMove.setBoardState(boardState);
+
+                for (List<Tile> tileList : boardState.getTilesProperty().get()) {
+
+                    for (Tile tile : tileList) {
+
+                        if (move.getTargetTile().getXProperty().get() == tile.getXProperty().get() &&
+                                move.getTargetTile().getYProperty().get() == tile.getYProperty().get()) {
+
+                            newMove.setTargetTile(tile);
+
+                        }
+
+                        if (move.getSourceTile().getXProperty().get() == tile.getXProperty().get() &&
+                                move.getSourceTile().getYProperty().get() == tile.getYProperty().get()) {
+
+                            newMove.setSourceTile(tile);
+
+                        }
+
+                    }
+
+                }
+
+                // We find the piece that was on the same tile
+
+                List<Piece> allPieces = new ArrayList<>(piecesProperty.get(PlayerColor.WHITE));
+                allPieces.addAll(piecesProperty.get(PlayerColor.BLACK));
+                allPieces.addAll(takenPiecesProperty.get());
+
+                for (Piece myPiece : allPieces) {
+
+                    if (myPiece.equals(move.getPiece())) {
+
+                        newMove.setPiece(myPiece);
+
+                    }
+
+                }
+
+                movesProperty.add(
+                        newMove
+                );
+
+            }
+
+        }
 
     }
 

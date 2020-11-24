@@ -65,6 +65,8 @@ public class ChessBoardView extends GridPane {
 
                             chessGameController.movePieceToTile(chessPieceEvent.getMove().getPiece(), chessPieceEvent.getMove().getTargetTile());
 
+                            selectedPieceView = new SimpleObjectProperty<>(null);
+
                         } else {
 
                             selectedPieceView = new SimpleObjectProperty<>(null);
@@ -85,7 +87,7 @@ public class ChessBoardView extends GridPane {
 
                         if (selectedPieceView.get() != null) {
 
-                            System.out.println(chessGameController.getLegalMovesOf(chessPieceEvent.getMove().getPiece()).size());
+                            // System.out.println(chessGameController.getLegalMovesOf(chessPieceEvent.getMove().getPiece()).size());
 
                             for (TileView tileView: chessGameController.getLegalMovesOf(chessPieceEvent.getMove().getPiece()).stream().map(
                                     tile -> tileViews.get(
@@ -95,7 +97,7 @@ public class ChessBoardView extends GridPane {
                                     )
                             ).collect(Collectors.toList())) {
 
-                                System.out.println(tileView);
+                                // System.out.println(tileView);
 
                                 selectedPieceLegalMoves.add(
                                         tileView
@@ -103,7 +105,7 @@ public class ChessBoardView extends GridPane {
 
                             }
 
-                            System.out.println(selectedPieceLegalMoves.size());
+                            // System.out.println(selectedPieceLegalMoves.size());
 
                         }
 
@@ -120,9 +122,18 @@ public class ChessBoardView extends GridPane {
         boardStateProperty.addListener(
                 (obs, old, val) -> {
 
+                    //System.out.println("Changing");
+
                     getChildren().clear();
                     getRowConstraints().clear();
                     getColumnConstraints().clear();
+
+                    tileViews = FXCollections.observableList(
+                            new ArrayList<>()
+                    );
+                    pieceViews = FXCollections.observableMap(
+                            new HashMap<>()
+                    );
 
                     for (int i = 0; i < 8; i++) {
 
@@ -145,7 +156,7 @@ public class ChessBoardView extends GridPane {
                             TileView tileView = new TileView(this, tile);
                             tileViews.get(tile.getXProperty().get()).add(tileView);
                             add(tileView, tile.getXProperty().get(), tile.getYProperty().get());
-                            System.out.println("ADDED NEW TILEVIEW AT " + tile.getXProperty().get() + ", " + tile.getYProperty().get());
+                            // System.out.println("ADDED NEW TILEVIEW AT " + tile.getXProperty().get() + ", " + tile.getYProperty().get());
 
                             tileView.setPrefSize(50, 50);
                             tileView.setMaxSize(50, 50);

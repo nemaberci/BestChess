@@ -20,19 +20,31 @@ public class PossibleMovesImpls {
         int pieceX = piece.getTileProperty().get().getXProperty().get();
         int pieceY = piece.getTileProperty().get().getYProperty().get();
 
-        moves.add(
-                boardState.getTilesProperty().get()
-                        .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 1 : pieceX - 1))
-                        .get(pieceY)
-        );
+        Tile wantToMoveTo = boardState.getTilesProperty().get()
+                .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 1 : pieceX - 1))
+                .get(pieceY);
+
+        if (wantToMoveTo.getPieceProperty().get() == null) {
+
+            moves.add(
+                    wantToMoveTo
+            );
+
+        }
 
         if (canMoveTwice) {
 
-            moves.add(
-                    boardState.getTilesProperty().get()
-                            .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 2 : pieceX - 2))
-                            .get(pieceY)
-            );
+            wantToMoveTo = boardState.getTilesProperty().get()
+                    .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 2 : pieceX - 2))
+                    .get(pieceY);
+
+            if (wantToMoveTo.getPieceProperty().get() == null) {
+
+                moves.add(
+                        wantToMoveTo
+                );
+
+            }
 
         }
 
@@ -124,7 +136,7 @@ public class PossibleMovesImpls {
 
         Set<Tile> moves = new HashSet<>();
 
-        for (int i = -Math.min(pieceX, pieceY); i < Math.min(7-pieceX, 7-pieceY); i++) {
+        for (int i = -Math.min(pieceX, pieceY); i <= Math.min(7-pieceX, 7-pieceY); i++) {
 
             moves.add(
                     boardState.getTilesProperty().get()
@@ -134,7 +146,7 @@ public class PossibleMovesImpls {
 
         }
 
-        for (int i = -Math.min(pieceX, 7-pieceY); i < Math.min(7-pieceX, pieceY); i++) {
+        for (int i = -Math.min(pieceX, 7-pieceY); i <= Math.min(7-pieceX, pieceY); i++) {
 
             moves.add(
                     boardState.getTilesProperty().get()

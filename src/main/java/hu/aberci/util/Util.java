@@ -85,11 +85,11 @@ public class Util {
 
         imageUrl = imageUrl.concat(".png");
 
-        System.out.println("Trying to load: " + imageUrl);
+        // System.out.println("Trying to load: " + imageUrl);
 
         try {
             Image image = new Image(imageUrl);
-            System.out.println("Success");
+            // System.out.println("Success");
             return image;
         } catch (Exception exception){
 

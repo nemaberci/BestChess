@@ -6,5 +6,9 @@ public interface Move {
     BoardState getBoardState();
     Tile getTargetTile();
     Tile getSourceTile();
+    void setTargetTile(Tile tile);
+    void setSourceTile(Tile tile);
+    void setBoardState(BoardState boardState);
+    void setPiece(Piece piece);
 
 }

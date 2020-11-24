@@ -37,7 +37,7 @@ public class TileView extends StackPane {
                 new ListChangeListener<TileView>() {
                     @Override
                     public void onChanged(Change<? extends TileView> change) {
-                        System.out.println("I AM CHANGING");
+                        // System.out.println("I AM CHANGING");
 
                         while (change.next()) {
 
@@ -77,7 +77,7 @@ public class TileView extends StackPane {
                     @Override
                     public void handle(MouseEvent mouseEvent) {
 
-                        System.out.println("I WAS CLICKED, I AM AT " + tileProperty.get().getXProperty().get() + ", " + tileProperty.get().getYProperty().get());
+                        // System.out.println("I WAS CLICKED, I AM AT " + tileProperty.get().getXProperty().get() + ", " + tileProperty.get().getYProperty().get());
 
                         if (parent.getSelectedPieceView().get() != null) {
 

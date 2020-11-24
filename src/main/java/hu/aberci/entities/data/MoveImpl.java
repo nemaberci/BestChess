@@ -4,20 +4,21 @@ import hu.aberci.entities.interfaces.BoardState;
 import hu.aberci.entities.interfaces.Move;
 import hu.aberci.entities.interfaces.Piece;
 import hu.aberci.entities.interfaces.Tile;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Data
+@NoArgsConstructor
 public class MoveImpl implements Move {
 
-    @Getter
     BoardState boardState;
 
-    @Getter
     Tile targetTile;
 
-    @Getter
     Tile sourceTile;
 
-    @Getter
     Piece piece;
 
     public MoveImpl(BoardState b, Tile t, Piece p) {
@@ -26,6 +27,15 @@ public class MoveImpl implements Move {
         targetTile = t;
         piece = p;
         sourceTile = p.getTileProperty().get();
+
+    }
+
+    public MoveImpl(BoardState b, Tile sourceTile1, Tile targetTile1, Piece p) {
+
+        targetTile = targetTile1;
+        sourceTile = sourceTile1;
+        piece = p;
+        boardState = b;
 
     }
 
