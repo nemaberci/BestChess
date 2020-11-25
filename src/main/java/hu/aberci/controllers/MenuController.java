@@ -2,6 +2,7 @@ package hu.aberci.controllers;
 
 import hu.aberci.entities.data.BoardStateImpl;
 import hu.aberci.entities.interfaces.BoardState;
+import hu.aberci.entities.interfaces.PlayerColor;
 import hu.aberci.entities.interfaces.SerializableBoardState;
 import hu.aberci.main.GameMain;
 import javafx.beans.value.ChangeListener;
@@ -11,9 +12,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -28,6 +27,13 @@ public class MenuController {
     @Getter
     @FXML
     private CheckBox AIEnabled;
+
+    @Getter
+    @FXML
+    private ComboBox<PlayerColor> aiColorComboBox;
+
+    @FXML
+    private Label aiColorLabel;
 
     @FXML
     private Pane chessClockConfig;
@@ -93,7 +99,24 @@ public class MenuController {
 
         GameMain.setMenuController(this);
 
-        // System.out.println(this + " IS THE MENUCONTROLLER");
+        aiColorComboBox.getItems().add(
+                PlayerColor.WHITE
+        );
+        aiColorComboBox.getItems().add(
+                PlayerColor.BLACK
+        );
+
+        aiColorComboBox.getSelectionModel().select(
+                PlayerColor.BLACK
+        );
+
+        aiColorComboBox.visibleProperty().bindBidirectional(
+                AIEnabled.selectedProperty()
+        );
+
+        aiColorLabel.visibleProperty().bindBidirectional(
+                AIEnabled.selectedProperty()
+        );
 
         try {
 

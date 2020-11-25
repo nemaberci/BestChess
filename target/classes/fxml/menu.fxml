@@ -17,5 +17,7 @@
       <Button fx:id="startButton" layoutX="88.0" layoutY="272.0" mnemonicParsing="false" text="New Game" />
       <Button fx:id="continueGame" layoutX="88.0" layoutY="231.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="76.0" text="Continue" />
       <Button fx:id="deleteSavedGame" layoutX="68.0" layoutY="195.0" mnemonicParsing="false" text="Delete Saved Game" />
+      <Label fx:id="aiColorLabel" layoutX="88.0" layoutY="72.0" text="AI color" />
+      <ComboBox fx:id="aiColorComboBox" layoutX="46.0" layoutY="95.0" prefWidth="150.0" />
    </children>
 </AnchorPane>

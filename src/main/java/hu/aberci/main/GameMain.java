@@ -21,6 +21,7 @@ public class GameMain extends Application {
     private static MenuController menuController;
 
     public static String savedGameFileName = "savegame.data";
+    public static String engineExecutableName = "stockfish";
 
     public static void main(String args[]) {
 

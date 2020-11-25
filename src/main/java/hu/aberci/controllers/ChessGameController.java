@@ -14,6 +14,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Parent;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -520,7 +521,7 @@ public class ChessGameController {
         // What caused the piece moved event does not matter, we only want to know when it happens
         parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_MOVED, new MoveImpl()));
 
-        System.out.println(boardStateProperty.get().getFEN().getFENCode());
+        // System.out.println(boardStateProperty.get().getFEN().getFENCode());
 
     }
 
