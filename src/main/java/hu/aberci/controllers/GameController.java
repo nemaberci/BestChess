@@ -13,6 +13,7 @@ import hu.aberci.util.ChessEngineMoveTask;
 import hu.aberci.util.ChessEngineUtil;
 import hu.aberci.util.ExecutorUtil;
 import hu.aberci.views.ChessBoardView;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -27,6 +28,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import javafx.util.converter.NumberStringConverter;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -74,6 +76,92 @@ public class GameController implements Initializable {
     private boolean isAIEnabled = false;
 
     private PlayerColor AIColor = PlayerColor.BLACK;
+
+    private void moveAI() {
+
+        BoardState boardState = chessBoard.getBoardStateProperty().get();
+
+        if (AIColor.equals(boardState.getPlayerTurnProperty().get())) {
+
+            ChessEngineUtil.sendStockfishPosition(
+                    boardState.getFEN()
+            );
+
+            if (isChessClock) {
+
+                ChessEngineUtil.sendStockfishTimeControls(
+                        chessClockController.getChessClockProperty().get().getWhiteTimeProperty().get(),
+                        chessClockController.getChessClockProperty().get().getBlackTimeProperty().get(),
+                        chessClockController.getChessClockProperty().get().getIncrement()
+                );
+
+            } else {
+
+                ChessEngineUtil.sendStockfishNoTimeControls();
+
+            }
+
+            ChessEngineMoveTask chessEngineMoveTask = new ChessEngineMoveTask();
+
+            chessEngineMoveTask.setBoardState(
+                    chessBoard.getBoardStateProperty().get()
+            );
+
+            chessEngineMoveTask.setOnSucceeded(
+                    e -> {
+
+                        Move AIMove = chessEngineMoveTask.getValue();
+
+                        System.out.println("MOVING FOR AI");
+
+                        chessGameController.movePieceToTile(
+                                AIMove.getPiece(),
+                                AIMove.getTargetTile()
+                        );
+
+                    }
+            );
+
+            Platform.runLater(
+                    chessEngineMoveTask::run
+            );
+
+        }
+
+    }
+
+    private void restart() {
+
+        textArea.setVisible(false);
+
+        if (isChessClock) {
+
+            ExecutorUtil.stop();
+            chessClockController.getChessClockProperty().unbindBidirectional(
+                    chessGameController.getBoardStateProperty().get().getChessClockProperty()
+            );
+
+        }
+
+        chessGameController = new ChessGameController(null, time, increment);
+
+        chessGameController.setParent(gridPane);
+
+        chessBoard.getBoardStateProperty()
+                .bindBidirectional(chessGameController.getBoardStateProperty());
+
+        chessBoard.setChessGameController(chessGameController);
+
+        if (isChessClock) {
+
+            chessClockController.getChessClockProperty().bindBidirectional(
+                    chessGameController.getBoardStateProperty().get().getChessClockProperty()
+            );
+            ExecutorUtil.start();
+
+        }
+
+    }
 
     public GameController() {
 
@@ -149,6 +237,8 @@ public class GameController implements Initializable {
 
             isAIEnabled = menuController.getAIEnabled().isSelected();
 
+            AIColor = menuController.getAiColorComboBox().getValue();
+
             isChessClock = menuController.getChessClockEnabled().isSelected();
 
             if (menuController.getBoardState() != null) {
@@ -156,8 +246,6 @@ public class GameController implements Initializable {
                 chessGameController = new ChessGameController(null, menuController.getBoardState());
 
                 isChessClock = menuController.getBoardState().getIsTimeControlledProperty().get();
-
-                AIColor = menuController.getAiColorComboBox().getValue();
 
             }
 
@@ -180,6 +268,14 @@ public class GameController implements Initializable {
                 .bindBidirectional(chessGameController.getBoardStateProperty());
 
         chessBoard.setChessGameController(chessGameController);
+
+        chessBoard.getChessAIColorProperty().set(
+                AIColor
+        );
+
+        chessBoard.getChessAIEnabledProperty().set(
+                isAIEnabled
+        );
 
         textArea.setVisible(false);
 
@@ -219,6 +315,8 @@ public class GameController implements Initializable {
 
         if (isAIEnabled) {
 
+            System.out.println("AI IS ENABLED");
+
             ChessEngineUtil.startEngine();
 
             ChessEngineUtil.sendStockfishNewGameCommand();
@@ -230,58 +328,7 @@ public class GameController implements Initializable {
             chessBoard.addEventHandler(
                     ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_MOVED,
                     (move) -> {
-
-                        BoardState boardState = chessBoard.getBoardStateProperty().get();
-
-                        if (AIColor.equals(boardState.getPlayerTurnProperty().get())) {
-
-                            ChessEngineUtil.sendStockfishPosition(
-                                    boardState.getFEN()
-                            );
-
-                            if (isChessClock) {
-
-                                ChessEngineUtil.sendStockfishTimeControls(
-                                        chessClockController.getChessClockProperty().get().getWhiteTimeProperty().get(),
-                                        chessClockController.getChessClockProperty().get().getBlackTimeProperty().get(),
-                                        chessClockController.getChessClockProperty().get().getIncrement()
-                                );
-
-                            } else {
-
-                                ChessEngineUtil.sendStockfishNoTimeControls();
-
-                            }
-
-                            ChessEngineMoveTask chessEngineMoveTask = new ChessEngineMoveTask();
-
-                            chessEngineMoveTask.setBoardState(
-                                    chessBoard.getBoardStateProperty().get()
-                            );
-
-                            chessEngineMoveTask.setOnSucceeded(
-                                    value -> {
-
-                                        Move AIMove = chessEngineMoveTask.getValue();
-
-                                        chessGameController.movePieceToTile(
-                                                AIMove.getPiece(),
-                                                AIMove.getTargetTile()
-                                        );
-
-                                        if (isChessClock) {
-
-                                            chessClockController.click();
-
-                                        }
-
-                                    }
-                            );
-
-                            chessEngineMoveTask.run();
-
-                        }
-
+                        moveAI();
                     }
             );
 
@@ -292,36 +339,7 @@ public class GameController implements Initializable {
                 new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent mouseEvent) {
-
-                        textArea.setVisible(false);
-
-                        if (isChessClock) {
-
-                            ExecutorUtil.stop();
-                            chessClockController.getChessClockProperty().unbindBidirectional(
-                                    chessGameController.getBoardStateProperty().get().getChessClockProperty()
-                            );
-
-                        }
-
-                        chessGameController = new ChessGameController(null, time, increment);
-
-                        chessGameController.setParent(gridPane);
-
-                        chessBoard.getBoardStateProperty()
-                                .bindBidirectional(chessGameController.getBoardStateProperty());
-
-                        chessBoard.setChessGameController(chessGameController);
-
-                        if (isChessClock) {
-
-                            chessClockController.getChessClockProperty().bindBidirectional(
-                                    chessGameController.getBoardStateProperty().get().getChessClockProperty()
-                            );
-                            ExecutorUtil.start();
-
-                        }
-
+                        restart();
                     }
                 }
         );
@@ -338,6 +356,10 @@ public class GameController implements Initializable {
                                 ExecutorUtil.stop();
 
                             }
+
+                            /*
+                            * Same thing as in MenuController
+                            *  */
 
                             final FXMLLoader loader = new FXMLLoader(
                                     MenuController.class.getResource("/fxml/menu.fxml")
@@ -437,7 +459,12 @@ public class GameController implements Initializable {
                 }
         );
 
+        if (isAIEnabled && AIColor.equals(chessGameController.boardStateProperty.get().getPlayerTurnProperty().get())) {
 
+            // We move the AI if the game starts
+            moveAI();
+
+        }
 
     }
 }

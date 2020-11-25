@@ -39,6 +39,12 @@ public class ChessBoardView extends GridPane {
     @Setter
     ChessGameController chessGameController;
 
+    @Getter
+    BooleanProperty chessAIEnabledProperty;
+
+    @Getter
+    ObjectProperty<PlayerColor> chessAIColorProperty;
+
     public ChessBoardView() {
 
         super();
@@ -46,6 +52,11 @@ public class ChessBoardView extends GridPane {
         selectedPieceView = new SimpleObjectProperty<>(null);
         selectedPieceLegalMoves = new SimpleListProperty<>(
                 FXCollections.observableList(new ArrayList<>())
+        );
+
+        chessAIEnabledProperty = new SimpleBooleanProperty(false);
+        chessAIColorProperty = new SimpleObjectProperty<>(
+                PlayerColor.BLACK
         );
 
         addEventHandler(
@@ -78,7 +89,21 @@ public class ChessBoardView extends GridPane {
 
                         selectedPieceLegalMoves.clear();
 
-                        if (selectedPieceView.get() != null) {
+                        if (chessAIEnabledProperty.get()) {
+
+                            if (chessAIColorProperty.get().equals(
+                                    boardStateProperty.get().getPlayerTurnProperty().get()
+                            )) {
+
+                                selectedPieceView.set(null);
+                                return;
+
+                            }
+
+                        }
+
+                        if (selectedPieceView.get() != null &&
+                                selectedPieceView.get().getPieceProperty().get().getPlayerColorProperty().get() == boardStateProperty.get().getPlayerTurnProperty().get()) {
 
                             // System.out.println(chessGameController.getLegalMovesOf(chessPieceEvent.getMove().getPiece()).size());
 
@@ -98,7 +123,11 @@ public class ChessBoardView extends GridPane {
 
                             }
 
-                            // System.out.println(selectedPieceLegalMoves.size());
+                        } else {
+
+                            selectedPieceView.set(
+                                    null
+                            );
 
                         }
 

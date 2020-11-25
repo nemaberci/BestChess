@@ -38,7 +38,7 @@ public class ChessClockController {
 
     public void click() {
 
-        //System.out.println(this + " was clicked");
+        System.out.println("CLICKING");
 
         PlayerColor currentColor = chessClockProperty.get().getPlayerTurnProperty().get();
         PlayerColor opponentColor = chessClockProperty.get().getPlayerTurnProperty().get() == PlayerColor.WHITE ? PlayerColor.BLACK : PlayerColor.WHITE;
