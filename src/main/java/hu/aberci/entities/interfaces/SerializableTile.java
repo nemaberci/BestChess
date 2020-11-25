@@ -9,4 +9,8 @@ public interface SerializableTile extends Serializable {
 
     SerializablePiece getPiece();
 
+    SerializableTile setPiece(SerializablePiece piece);
+    SerializableTile setX(Integer x);
+    SerializableTile setY(Integer y);
+
 }

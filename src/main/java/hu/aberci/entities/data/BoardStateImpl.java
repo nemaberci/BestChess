@@ -5,7 +5,6 @@ import hu.aberci.exceptions.NoTilesException;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import lombok.Getter;
-import org.apache.commons.lang3.SerializationUtils;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -121,10 +120,10 @@ public class BoardStateImpl implements BoardState {
     ObjectProperty<ChessClock> chessClockProperty;
 
     @Getter
-    SimpleListProperty<List<Tile>> tilesProperty;
+    ListProperty<List<Tile>> tilesProperty;
 
     @Getter
-    SimpleMapProperty<PlayerColor, List<Piece>> piecesProperty;
+    MapProperty<PlayerColor, List<Piece>> piecesProperty;
 
     @Getter
     ListProperty<Move> movesProperty;
@@ -132,7 +131,21 @@ public class BoardStateImpl implements BoardState {
     @Getter
     ListProperty<Piece> takenPiecesProperty;
 
+    @Getter
+    MapProperty<String, Integer> positionCounterProperty;
+
+    @Getter
+    BooleanProperty isTimeControlledProperty;
+
     public BoardStateImpl(int startingTime, int increment, boolean generateTiles, boolean generatePieces) throws NoTilesException {
+
+        isTimeControlledProperty = new SimpleBooleanProperty(false);
+
+        positionCounterProperty = new SimpleMapProperty<>(
+                FXCollections.observableMap(
+                        new HashMap<>()
+                )
+        );
 
         chessClockProperty = new SimpleObjectProperty<>(
                 new ChessClockImpl(startingTime, increment)
@@ -227,6 +240,24 @@ public class BoardStateImpl implements BoardState {
 
     public BoardStateImpl(BoardState boardState) {
 
+        isTimeControlledProperty = new SimpleBooleanProperty(
+                boardState.getIsTimeControlledProperty().get()
+        );
+
+        positionCounterProperty = new SimpleMapProperty<>(
+                FXCollections.observableMap(
+                        new HashMap<>()
+                )
+        );
+        for (String key: boardState.getPositionCounterProperty().keySet()) {
+
+            positionCounterProperty.put(
+                    key,
+                    boardState.getPositionCounterProperty().get(key)
+            );
+
+        }
+
         playerTurnProperty = new SimpleObjectProperty<>();
         playerTurnProperty.set(
                 boardState.getPlayerTurnProperty().get()
@@ -273,7 +304,9 @@ public class BoardStateImpl implements BoardState {
 
         chessClockProperty = new SimpleObjectProperty<>();
         chessClockProperty.set(
-                new ChessClockImpl(boardState.getChessClockProperty().get())
+                new ChessClockImpl(
+                        boardState.getChessClockProperty().get()
+                )
         );
 
         /*
@@ -394,6 +427,25 @@ public class BoardStateImpl implements BoardState {
 
     public BoardStateImpl(SerializableBoardState serializableBoardState) {
 
+        isTimeControlledProperty = new SimpleBooleanProperty(
+                serializableBoardState.isTimeControlled()
+        );
+
+        positionCounterProperty = new SimpleMapProperty<>(
+                FXCollections.observableMap(
+                        new HashMap<>()
+                )
+        );
+
+        for (String key: serializableBoardState.getPositionCounter().keySet()) {
+
+            positionCounterProperty.put(
+                    key,
+                    serializableBoardState.getPositionCounter().get(key)
+            );
+
+        }
+
         playerTurnProperty = new SimpleObjectProperty<>(
                 serializableBoardState.getPlayerColor()
         );
@@ -438,6 +490,14 @@ public class BoardStateImpl implements BoardState {
                         serializablePiece.getPieceType(),
                         serializablePiece.getPlayerColor(),
                         serializablePiece.getID()
+                );
+
+                tilesProperty.get(
+                        serializablePiece.getTile().getX()
+                ).get(
+                        serializablePiece.getTile().getY()
+                ).getPieceProperty().set(
+                        piece
                 );
 
                 piecesProperty.get(playerColor).add(
@@ -511,13 +571,17 @@ public class BoardStateImpl implements BoardState {
                 serializableBoardState.getChessClock().getWhiteTime()
         );
 
+        chessClock.getPlayerTurnProperty().set(
+                serializableBoardState.getChessClock().getPlayerColor()
+        );
+
         chessClockProperty = new SimpleObjectProperty<>(chessClock);
 
     }
 
-    public String getFEN() {
+    public FENCode getFEN() {
 
-        StringBuilder toReturn = new StringBuilder();
+        FENCodeImpl toReturn = new FENCodeImpl();
 
         int toSkip = 0;
 
@@ -530,69 +594,43 @@ public class BoardStateImpl implements BoardState {
                 if (tile.getPieceProperty().get() == null) {
                     toSkip++;
                 } else {
-                    char letter = 'p';
-                    switch (tile.getPieceProperty().get().getPieceTypeProperty().get()) {
-
-                        case BISHOP:
-                            letter = 'b';
-                            break;
-                        case QUEEN:
-                            letter = 'q';
-                            break;
-                        case ROOK:
-                            letter = 'r';
-                            break;
-                        case KNIGHT:
-                            letter = 'n';
-                            break;
-                        case KING:
-                            letter = 'k';
-                            break;
-                        case PAWN:
-                            letter = 'p';
-                            break;
-
-                    }
+                    char letter = tile.getPieceProperty().get().getPieceTypeProperty().get().FENchar;
                     if (PlayerColor.WHITE.equals(tile.getPieceProperty().get().getPlayerColorProperty().get())) {
                         letter = Character.toUpperCase(letter);
                     }
                     if (toSkip != 0) {
-                        toReturn.append(toSkip);
+                        toReturn.setBoard(toReturn.getBoard() + toSkip);
                         toSkip = 0;
                     }
-                    toReturn.append(letter);
+                    toReturn.setBoard(toReturn.getBoard() + letter);
 
                 }
 
             }
 
             if (toSkip != 0) {
-                toReturn.append(toSkip);
+                toReturn.setBoard(toReturn.getBoard() + toSkip);
             }
 
             toSkip = 0;
 
             if (x != 0) {
 
-                toReturn.append("/");
+                toReturn.setBoard(toReturn.getBoard() + '/');
 
             }
 
         }
 
-        toReturn.append(" ");
-
         if (PlayerColor.WHITE.equals(playerTurnProperty.get())) {
 
-            toReturn.append("w");
+            toReturn.setTurn("w");
 
         } else {
 
-            toReturn.append("b");
+            toReturn.setTurn("b");
 
         }
-
-        toReturn.append(" ");
 
         Integer whiteRookKingID = -1, whiteRookQueenID = -1, blackRookKingID = -1, blackRookQueenID = -1;
 
@@ -681,26 +719,24 @@ public class BoardStateImpl implements BoardState {
 
         if (!canBlackCastleKingside && !canBlackCastleQueenside && !canWhiteCastleKingside && !canWhiteCastleQueenside) {
 
-            toReturn.append("-");
+            toReturn.setCastle("-");
 
         } else {
 
             if (canWhiteCastleKingside) {
-                toReturn.append("K");
+                toReturn.setCastle("K");
             }
             if (canWhiteCastleQueenside) {
-                toReturn.append("Q");
+                toReturn.setCastle(toReturn.getCastle() + "Q");
             }
             if (canBlackCastleKingside) {
-                toReturn.append("k");
+                toReturn.setCastle(toReturn.getCastle() + "k");
             }
             if (canBlackCastleQueenside) {
-                toReturn.append("q");
+                toReturn.setCastle(toReturn.getCastle() + "q");
             }
 
         }
-
-        toReturn.append(" ");
 
         if (movesProperty.size() != 0) {
 
@@ -713,20 +749,20 @@ public class BoardStateImpl implements BoardState {
                 char letter = (char) ('a' + (movesProperty.get(movesProperty.size() - 1).getTargetTile().getYProperty().get()));
                 int number = ((movesProperty.get(movesProperty.size() - 1).getTargetTile().getXProperty().get() + movesProperty.get(movesProperty.size() - 1).getSourceTile().getXProperty().get()) / 2) + 1;
 
-                toReturn.append(letter);
-                toReturn.append(number);
+                toReturn.setEnPassant(Character.toString(letter));
+                toReturn.setEnPassant(toReturn.getEnPassant() + number);
 
             } else {
 
-                toReturn.append("-");
+                toReturn.setEnPassant("-");
 
             }
 
         } else {
-            toReturn.append("-");
-        }
 
-        toReturn.append(" ");
+            toReturn.setEnPassant("-");
+
+        }
 
         if (movesProperty.size() != 0) {
 
@@ -744,19 +780,17 @@ public class BoardStateImpl implements BoardState {
 
             }
 
-            toReturn.append(counter);
+            toReturn.setHalfTurns(Integer.toString(counter));
 
         } else {
 
-            toReturn.append(0);
+            toReturn.setHalfTurns("0");
 
         }
 
-        toReturn.append(" ");
+        toReturn.setTurnNumber(Integer.toString(movesProperty.get().size() / 2));
 
-        toReturn.append(movesProperty.size() / 2);
-
-        return toReturn.toString();
+        return toReturn;
 
     }
 

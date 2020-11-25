@@ -22,12 +22,12 @@ public class Util {
 
         /*System.out.println("Moves after first filter: " +
                 possibleTiles.stream()
-                .map(tile -> new MoveImpl(boardState, tile, piece))
+                .map(tile -> new MoveImpl(boardState, tile, piece, false))
                 .filter(Predicates.pieceOnTileIsNotOfPlayerColor).collect(Collectors.toSet()).size()
         );
 
         System.out.println("Moves after second filter: " + possibleTiles.stream()
-                .map(tile -> new MoveImpl(boardState, tile, piece))
+                .map(tile -> new MoveImpl(boardState, tile, piece, false))
                 .filter(Predicates.pieceOnTileIsNotOfPlayerColor)
                 .filter(Predicates.isPlayerNotInCheckAfterMove).collect(Collectors.toSet()).size()
         );*/
@@ -37,7 +37,7 @@ public class Util {
             possibleMoves = possibleMoves.filter(Predicates.isTargetTileReachableFromPiece);
 
             /*System.out.println("Moves after (third) filter: " + possibleTiles.stream()
-                    .map(tile -> new MoveImpl(boardState, tile, piece))
+                    .map(tile -> new MoveImpl(boardState, tile, piece, false))
                     .filter(Predicates.pieceOnTileIsNotOfPlayerColor)
                     .filter(Predicates.isPlayerNotInCheckAfterMove)
                     .filter(Predicates.isTargetTileReachableFromPiece).collect(Collectors.toSet()).size()
@@ -57,31 +57,7 @@ public class Util {
 
         imageUrl = imageUrl.concat(piece.getPlayerColorProperty().get() == PlayerColor.WHITE ? "white" : "black");
         imageUrl = imageUrl.concat("_");
-
-        switch (piece.getPieceTypeProperty().get()) {
-
-            case PAWN:
-                imageUrl = imageUrl.concat("pawn");
-                break;
-            case KING:
-                imageUrl = imageUrl.concat("king");
-                break;
-            case KNIGHT:
-                imageUrl = imageUrl.concat("knight");
-                break;
-            case ROOK:
-                imageUrl = imageUrl.concat("rook");
-                break;
-            case QUEEN:
-                imageUrl = imageUrl.concat("queen");
-                break;
-            case BISHOP:
-                imageUrl = imageUrl.concat("bishop");
-                break;
-            default:
-                break;
-
-        }
+        imageUrl = imageUrl.concat(piece.getPieceTypeProperty().get().name);
 
         imageUrl = imageUrl.concat(".png");
 

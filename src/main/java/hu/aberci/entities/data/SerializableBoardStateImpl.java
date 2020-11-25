@@ -18,6 +18,12 @@ public class SerializableBoardStateImpl implements SerializableBoardState {
     HashMap<PlayerColor, ArrayList<SerializablePiece>> pieces;
     SerializableChessClock chessClock;
     PlayerColor playerColor;
+    HashMap<String, Integer> positionCounter;
+    Boolean timeControlled;
+
+    public Boolean isTimeControlled() {
+        return timeControlled;
+    }
 
     private SerializablePiece findPieceWithID(Integer ID) {
 
@@ -55,6 +61,17 @@ public class SerializableBoardStateImpl implements SerializableBoardState {
         moves = new ArrayList<>();
         takenPieces = new ArrayList<>();
         pieces = new HashMap<>();
+        positionCounter = new HashMap<>();
+        timeControlled = boardState.getIsTimeControlledProperty().get();
+
+        for (String key: boardState.getPositionCounterProperty().keySet()) {
+
+            positionCounter.put(
+                    key,
+                    boardState.getPositionCounterProperty().get(key)
+            );
+
+        }
 
         playerColor = boardState.getPlayerTurnProperty().get();
         chessClock = new SerializableChessClockImpl()
@@ -105,22 +122,30 @@ public class SerializableBoardStateImpl implements SerializableBoardState {
 
             pieces.put(playerColor, new ArrayList<>());
 
-            for (Piece whitePiece: boardState.getPiecesProperty().get(playerColor)) {
+            for (Piece piece: boardState.getPiecesProperty().get(playerColor)) {
 
                 SerializablePieceImpl serializablePiece = new SerializablePieceImpl()
                         .setPlayerColor(
-                                whitePiece.getPlayerColorProperty().get()
+                                piece.getPlayerColorProperty().get()
                         ).setID(
-                                whitePiece.getIDProperty().get()
+                                piece.getIDProperty().get()
                         ).setPieceType(
-                                whitePiece.getPieceTypeProperty().get()
+                                piece.getPieceTypeProperty().get()
                         ).setTile(
                                 tiles.get(
-                                        whitePiece.getTileProperty().get().getXProperty().get()
+                                        piece.getTileProperty().get().getXProperty().get()
                                 ).get(
-                                        whitePiece.getTileProperty().get().getYProperty().get()
+                                        piece.getTileProperty().get().getYProperty().get()
                                 )
                         );
+
+                tiles.get(
+                        piece.getTileProperty().get().getXProperty().get()
+                ).get(
+                        piece.getTileProperty().get().getYProperty().get()
+                ).setPiece(
+                        serializablePiece
+                );
 
                 pieces.get(playerColor).add(
                         serializablePiece

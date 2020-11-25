@@ -1,10 +1,13 @@
 package hu.aberci.controllers;
 
+import com.sun.prism.shader.Solid_TextureYV12_AlphaTest_Loader;
+import hu.aberci.entities.data.ChessClockImpl;
 import hu.aberci.entities.data.SerializableBoardStateImpl;
 import hu.aberci.entities.events.ChessBoardEvent;
 import hu.aberci.entities.events.ChessPieceEvent;
 import hu.aberci.entities.interfaces.PlayerColor;
 import hu.aberci.main.GameMain;
+import hu.aberci.util.ExecutorUtil;
 import hu.aberci.views.ChessBoardView;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -13,10 +16,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
-import lombok.Getter;
+import javafx.util.converter.NumberStringConverter;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,6 +34,8 @@ public class GameController implements Initializable {
 
     ChessGameController chessGameController;
 
+    ChessClockController chessClockController;
+
     @FXML
     ChessBoardView gridPane;
 
@@ -42,17 +48,30 @@ public class GameController implements Initializable {
     @FXML
     TextArea textArea;
 
+    @FXML
+    TextArea whiteTime;
+
+    @FXML
+    TextArea blackTime;
+
+    @FXML
+    Label blackTimeLabel;
+
+    @FXML
+    Label whiteTimeLabel;
+
     ChessBoardView chessBoard;
 
     int time, increment;
 
+    private boolean isChessClock = false;
+
     public GameController() {
 
-        boolean isChessClock = false;
+        chessClockController = null;
+
         int clockTime = 0;
         int clockIncrement = 0;
-
-        chessGameController = new ChessGameController(null, clockTime, clockIncrement);
 
         try {
 
@@ -62,14 +81,52 @@ public class GameController implements Initializable {
             clockIncrement = parseInt(menuController.getClockIncrement().getText());
             clockTime = parseInt(menuController.getClockTime().getText());
 
-        } catch (Exception ignore) {
+            chessGameController = new ChessGameController(null, clockTime, clockIncrement);
 
-            ignore.printStackTrace();
+            chessClockController = new ChessClockController(
+                    gridPane,
+                    chessGameController.getBoardStateProperty().get(),
+                    chessGameController.getBoardStateProperty().get().getChessClockProperty().get()
+            );
+
+            ExecutorUtil.setChessClockController(chessClockController);
+
+        } catch (Exception exception) {
+
+            exception.printStackTrace();
 
         }
 
         time = clockTime;
         increment = clockIncrement;
+
+    }
+
+    private void saveGame() {
+
+        File file = new File(GameMain.savedGameFileName);
+
+        if (file.isFile()) {
+
+            file.delete();
+
+        }
+
+        try {
+
+            FileOutputStream fileOutputStream = new FileOutputStream(GameMain.savedGameFileName);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+
+            objectOutputStream.writeObject(new SerializableBoardStateImpl(chessBoard.getBoardStateProperty().get()));
+
+            objectOutputStream.close();
+            fileOutputStream.close();
+
+        } catch (Exception exception) {
+
+            exception.printStackTrace();
+
+        }
 
     }
 
@@ -79,11 +136,12 @@ public class GameController implements Initializable {
         try {
 
             MenuController menuController = GameMain.getMenuController();
-            menuController.initialize();
 
             if (menuController.getBoardState() != null) {
 
                 chessGameController = new ChessGameController(null, menuController.getBoardState());
+
+                isChessClock = menuController.getBoardState().getIsTimeControlledProperty().get();
 
             }
 
@@ -98,12 +156,50 @@ public class GameController implements Initializable {
         chessBoard = gridPane;
         chessBoard.initialize();
 
+        chessGameController.getBoardStateProperty().get().getIsTimeControlledProperty().set(
+                isChessClock
+        );
+
         chessBoard.getBoardStateProperty()
                 .bindBidirectional(chessGameController.getBoardStateProperty());
 
         chessBoard.setChessGameController(chessGameController);
 
         textArea.setVisible(false);
+
+        blackTime.textProperty().bindBidirectional(
+                chessGameController.getBoardStateProperty().get().getChessClockProperty().get().getBlackTimeProperty(),
+                new NumberStringConverter()
+        );
+        blackTime.setEditable(false);
+        blackTime.setVisible(isChessClock);
+        blackTimeLabel.visibleProperty().bindBidirectional(
+                blackTime.visibleProperty()
+        );
+
+        whiteTime.textProperty().bindBidirectional(
+                chessGameController.getBoardStateProperty().get().getChessClockProperty().get().getWhiteTimeProperty(),
+                new NumberStringConverter()
+        );
+        whiteTime.setEditable(false);
+        whiteTime.setVisible(isChessClock);
+        whiteTimeLabel.visibleProperty().bindBidirectional(
+                whiteTime.visibleProperty()
+        );
+
+        if (isChessClock) {
+
+            //System.out.println("STARTING TIMER");
+
+            chessClockController.getChessClockProperty().bindBidirectional(
+                    chessGameController.getBoardStateProperty().get().getChessClockProperty()
+            );
+
+            chessClockController.setParent(chessBoard);
+            ExecutorUtil.setChessClockController(chessClockController);
+            ExecutorUtil.start();
+
+        }
 
         newGame.setVisible(false);
         newGame.setOnMouseClicked(
@@ -113,6 +209,15 @@ public class GameController implements Initializable {
 
                         textArea.setVisible(false);
 
+                        if (isChessClock) {
+
+                            ExecutorUtil.stop();
+                            chessClockController.getChessClockProperty().unbindBidirectional(
+                                    chessGameController.getBoardStateProperty().get().getChessClockProperty()
+                            );
+
+                        }
+
                         chessGameController = new ChessGameController(null, time, increment);
 
                         chessGameController.setParent(gridPane);
@@ -121,6 +226,16 @@ public class GameController implements Initializable {
                                 .bindBidirectional(chessGameController.getBoardStateProperty());
 
                         chessBoard.setChessGameController(chessGameController);
+
+                        if (isChessClock) {
+
+                            chessClockController.getChessClockProperty().bindBidirectional(
+                                    chessGameController.getBoardStateProperty().get().getChessClockProperty()
+                            );
+                            ExecutorUtil.start();
+
+                        }
+
                     }
                 }
         );
@@ -131,6 +246,12 @@ public class GameController implements Initializable {
                     @Override
                     public void handle(ActionEvent actionEvent) {
                         try {
+
+                            if (isChessClock) {
+
+                                ExecutorUtil.stop();
+
+                            }
 
                             final FXMLLoader loader = new FXMLLoader(
                                     MenuController.class.getResource("/fxml/menu.fxml")
@@ -181,32 +302,56 @@ public class GameController implements Initializable {
                 ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_MOVED,
                 chessPieceEvent -> {
 
-                    try {
+                    saveGame();
 
-                        File file = new File(GameMain.savedGameFileName);
+                    if (isChessClock) {
 
-                        if (file.isFile()) {
-
-                            file.delete();
-
-                        }
-
-                        FileOutputStream fileOutputStream = new FileOutputStream(GameMain.savedGameFileName);
-                        ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-
-                        objectOutputStream.writeObject(new SerializableBoardStateImpl(chessBoard.getBoardStateProperty().get()));
-
-                        objectOutputStream.close();
-                        fileOutputStream.close();
-
-                    } catch (Exception exception) {
-
-                        exception.printStackTrace();
+                        chessClockController.click();
 
                     }
 
                 }
         );
+
+        if (isChessClock) {
+
+            chessClockController.getChessClockProperty().get().getBlackTimeProperty().addListener(
+                    change -> {
+
+                        saveGame();
+
+                    }
+            );
+
+            chessClockController.getChessClockProperty().get().getWhiteTimeProperty().addListener(
+                    change -> {
+
+                        saveGame();
+
+                    }
+            );
+
+        }
+
+        chessBoard.addEventHandler(
+                ChessBoardEvent.CHESS_BOARD_EVENT_CLOCK_FLAG,
+                chessBoardEvent -> {
+
+                    System.out.println("TIME RAN OUT");
+
+                    ExecutorUtil.stop();
+
+                    textArea.setVisible(true);
+                    textArea.setText("Time ran out");
+
+                    textArea.setText(
+                            textArea.getText() + "\n" + (PlayerColor.WHITE.equals(chessBoard.getBoardStateProperty().get().getPlayerTurnProperty().get()) ? "Black" : "White") + " wins"
+                    );
+
+                }
+        );
+
+
 
     }
 }

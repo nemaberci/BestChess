@@ -32,7 +32,7 @@ public class PossibleMovesImpls {
 
         }
 
-        if (canMoveTwice) {
+        if (canMoveTwice && wantToMoveTo.getPieceProperty().get() == null) {
 
             wantToMoveTo = boardState.getTilesProperty().get()
                     .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 2 : pieceX - 2))

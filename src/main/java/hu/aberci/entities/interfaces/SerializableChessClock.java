@@ -11,4 +11,11 @@ public interface SerializableChessClock extends Serializable {
 
     Integer getIncrement();
 
+    SerializableChessClock setPlayerColor(PlayerColor playerColor);
+
+    SerializableChessClock setBlackTime(Integer blackTime);
+    SerializableChessClock setWhiteTime(Integer whiteTime);
+
+    SerializableChessClock setIncrement(Integer increment);
+
 }

@@ -1,5 +1,6 @@
 package hu.aberci.entities.interfaces;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.MapProperty;
 import javafx.beans.property.ObjectProperty;
@@ -23,6 +24,10 @@ public interface BoardState {
 
     ListProperty<Move> getMovesProperty();
 
-    String getFEN();
+    MapProperty<String, Integer> getPositionCounterProperty();
+
+    BooleanProperty getIsTimeControlledProperty();
+
+    FENCode getFEN();
 
 }

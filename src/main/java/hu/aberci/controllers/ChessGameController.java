@@ -464,6 +464,18 @@ public class ChessGameController {
                 )
         );
 
+        if (newBoardState.getPositionCounterProperty().get().containsKey(newBoardState.getFEN().getBoard())) {
+            newBoardState.getPositionCounterProperty().replace(
+                    newBoardState.getFEN().getBoard(),
+                    newBoardState.getPositionCounterProperty().get(newBoardState.getFEN().getBoard()) + 1
+            );
+        } else {
+            newBoardState.getPositionCounterProperty().put(
+                    newBoardState.getFEN().getBoard(),
+                    1
+            );
+        }
+
         boardStateProperty.set(
                 newBoardState
         );
@@ -478,6 +490,14 @@ public class ChessGameController {
 
         if (isPlayerInCheck() && !isPlayerInCheckmate()) {
             parent.fireEvent(new ChessBoardEvent(ChessBoardEvent.CHESS_BOARD_EVENT_CHECK, boardStateProperty.get()));
+        }
+
+        if (Integer.parseInt(boardStateProperty.get().getFEN().getHalfTurns()) >= 50) {
+            parent.fireEvent(new ChessBoardEvent(ChessBoardEvent.CHESS_BOARD_EVENT_DRAW, boardStateProperty.get()));
+        }
+
+        if (boardStateProperty.get().getPositionCounterProperty().get(boardStateProperty.get().getFEN().getBoard()) >= 3) {
+            parent.fireEvent(new ChessBoardEvent(ChessBoardEvent.CHESS_BOARD_EVENT_DRAW, boardStateProperty.get()));
         }
 
         if (piece.getPieceTypeProperty().get() == PieceType.PAWN) {
@@ -500,7 +520,7 @@ public class ChessGameController {
         // What caused the piece moved event does not matter, we only want to know when it happens
         parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_MOVED, new MoveImpl()));
 
-        System.out.println(boardStateProperty.get().getFEN());
+        System.out.println(boardStateProperty.get().getFEN().getFENCode());
 
     }
 

@@ -4,7 +4,6 @@ import hu.aberci.entities.data.BoardStateImpl;
 import hu.aberci.entities.data.MoveImpl;
 import hu.aberci.entities.data.TileImpl;
 import hu.aberci.entities.interfaces.*;
-import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.*;
 import java.util.function.BiPredicate;

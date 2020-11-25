@@ -1,16 +1,24 @@
 package hu.aberci.entities.data;
 
+import com.sun.prism.shader.Solid_TextureYV12_AlphaTest_Loader;
+import hu.aberci.entities.events.ChessBoardEvent;
+import hu.aberci.entities.interfaces.BoardState;
 import hu.aberci.entities.interfaces.ChessClock;
 import hu.aberci.entities.interfaces.PlayerColor;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.Parent;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.util.concurrent.*;
 
+@Accessors(chain = true)
+@NoArgsConstructor
 public class ChessClockImpl implements ChessClock {
 
     @Getter
@@ -23,60 +31,16 @@ public class ChessClockImpl implements ChessClock {
     @Getter
     IntegerProperty whiteTimeProperty, blackTimeProperty;
 
-    ScheduledExecutorService scheduledExecutorService;
-
-    ScheduledFuture<?> runningClock;
-
-    @Override
-    public void step() {
-        if (playerTurnProperty.get() == PlayerColor.WHITE) {
-            whiteTimeProperty.set(whiteTimeProperty.get() - 1);
-        } else {
-            blackTimeProperty.set(blackTimeProperty.get() - 1);
-        }
-    }
-
-    public synchronized void click() {
-        if (playerTurnProperty.get() == PlayerColor.WHITE) {
-            whiteTimeProperty.set(whiteTimeProperty.get() + increment);
-            playerTurnProperty.set(PlayerColor.BLACK);
-        } else {
-            blackTimeProperty.set(blackTimeProperty.get() + increment);
-            playerTurnProperty.set(PlayerColor.WHITE);
-        }
-    }
-
-    @Override
-    public void startClock() {
-
-        runningClock = scheduledExecutorService.schedule(this::step, 1, TimeUnit.SECONDS);
-
-    }
-
-    public void stopClock() {
-
-        if (runningClock != null) {
-
-            runningClock.cancel(true);
-
-        }
-
-    }
-
-    ChessClockImpl(int startingTime, int timeIncrement) {
+    public ChessClockImpl(int startingTime, int timeIncrement) {
 
         increment = timeIncrement;
 
         whiteTimeProperty = new SimpleIntegerProperty(startingTime);
         blackTimeProperty = new SimpleIntegerProperty(startingTime);
 
-        scheduledExecutorService = Executors.newScheduledThreadPool(1);
-
         playerTurnProperty = new SimpleObjectProperty<>(
                 PlayerColor.WHITE
         );
-
-        runningClock = null;
 
     }
 

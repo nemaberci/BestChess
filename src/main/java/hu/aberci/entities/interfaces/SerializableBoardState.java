@@ -12,5 +12,7 @@ public interface SerializableBoardState extends Serializable {
     ArrayList<SerializableMove> getMoves();
     ArrayList<SerializablePiece> getTakenPieces();
     HashMap<PlayerColor, ArrayList<SerializablePiece>> getPieces();
+    HashMap<String, Integer> getPositionCounter();
+    Boolean isTimeControlled();
 
 }

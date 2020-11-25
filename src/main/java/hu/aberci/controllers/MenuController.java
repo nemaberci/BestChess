@@ -68,8 +68,32 @@ public class MenuController {
 
     }
 
+    private void loadGame() {
+
+        try {
+
+            final FXMLLoader loader = new FXMLLoader(
+                    MenuController.class.getResource("/fxml/game.fxml")
+            );
+
+            loader.setRoot(null);
+
+            ((Stage) startButton.getScene().getWindow()).setScene(
+                    new Scene(loader.load())
+            );
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+
+    }
+
     @FXML
     public void initialize() {
+
+        GameMain.setMenuController(this);
+
+        // System.out.println(this + " IS THE MENUCONTROLLER");
 
         try {
 
@@ -82,6 +106,9 @@ public class MenuController {
 
                 objectInputStream.close();
                 fileInputStream.close();
+
+                continueGame.setVisible(true);
+                deleteSavedGame.setVisible(true);
 
             } else {
 
@@ -148,23 +175,13 @@ public class MenuController {
 
                     @Override
                     public void handle(ActionEvent actionEvent) {
-                        try {
 
-                            boardState = null;
+                        System.out.println("SETTING BOARDSTATE TO NULL");
 
-                            final FXMLLoader loader = new FXMLLoader(
-                                    MenuController.class.getResource("/fxml/game.fxml")
-                            );
+                        boardState = null;
 
-                            loader.setRoot(null);
+                        loadGame();
 
-                            ((Stage) startButton.getScene().getWindow()).setScene(
-                                    new Scene(loader.load())
-                            );
-
-                        } catch (Exception exception) {
-                            exception.printStackTrace();
-                        }
                     }
                 }
         );
@@ -185,10 +202,12 @@ public class MenuController {
 
                                 boardState = new BoardStateImpl((SerializableBoardState) objectInputStream.readObject());
 
+                                System.out.println("SETTING BOARDSTATE TO " + boardState);
+
                                 objectInputStream.close();
                                 fileInputStream.close();
 
-                                startButton.fire();
+                                loadGame();
 
                             } catch (Exception exception) {
 
