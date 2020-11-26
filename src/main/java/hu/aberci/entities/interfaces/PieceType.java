@@ -6,6 +6,7 @@ import hu.aberci.util.interfaces.PossibleMoves;
 import java.io.Serializable;
 
 public enum PieceType implements Serializable {
+
     PAWN(PossibleMovesImpls.possiblePawnMoves, 'p', "pawn"),
     ROOK(PossibleMovesImpls.possibleRookMoves, 'r', "rook"),
     BISHOP(PossibleMovesImpls.possibleBishopMoves, 'b', "bishop"),
@@ -18,6 +19,22 @@ public enum PieceType implements Serializable {
     public final char FENchar;
 
     public final String name;
+
+    public static PieceType getPieceTypeByFenChar(char c) {
+
+        for (PieceType pieceType: PieceType.values()) {
+
+            if (pieceType.FENchar == c) {
+
+                return pieceType;
+
+            }
+
+        }
+
+        return null;
+
+    }
 
     PieceType(PossibleMoves _possibleMoves, char feNchar, String name) {
         possibleMoves = _possibleMoves;

@@ -1,10 +1,7 @@
 package hu.aberci.util;
 
 import hu.aberci.entities.data.MoveImpl;
-import hu.aberci.entities.interfaces.BoardState;
-import hu.aberci.entities.interfaces.Move;
-import hu.aberci.entities.interfaces.Piece;
-import hu.aberci.entities.interfaces.Tile;
+import hu.aberci.entities.interfaces.*;
 import javafx.concurrent.Task;
 import lombok.Setter;
 
@@ -45,12 +42,28 @@ public class ChessEngineMoveTask extends Task<Move> {
                         Integer.parseInt(String.valueOf(move.charAt(2) - 'a'))
                 );
 
-        return new MoveImpl(
-                boardState,
-                tileToMoveTo,
-                pieceToMove,
-                false
-        );
+        if (move.length() == 4) {
+
+            return new MoveImpl(
+                    boardState,
+                    tileToMoveTo,
+                    pieceToMove,
+                    false
+            );
+
+        } else {
+
+            // Promotion
+
+            return new MoveImpl(
+                    boardState,
+                    tileToMoveTo,
+                    pieceToMove,
+                    false,
+                    PieceType.getPieceTypeByFenChar(move.charAt(4))
+            );
+
+        }
 
     }
 

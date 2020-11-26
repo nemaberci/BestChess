@@ -11,5 +11,7 @@ public interface Move {
     Move setBoardState(BoardState boardState);
     Move setPiece(Piece piece);
     boolean isCapture();
+    Move setPromotingTo(PieceType pieceType);
+    PieceType getPromotingTo();
 
 }

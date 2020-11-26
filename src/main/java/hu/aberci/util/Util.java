@@ -76,4 +76,23 @@ public class Util {
 
     }
 
+    public static Image getPromotionPieceImage(PieceType pieceType) {
+
+        String imageUrl = "images/bw_";
+
+        imageUrl = imageUrl.concat(pieceType.name).concat(".png");
+
+        try {
+            Image image = new Image(imageUrl);
+            // System.out.println("Success");
+            return image;
+        } catch (Exception exception){
+
+            // exception.printStackTrace();
+
+            return null;
+        }
+
+    }
+
 }

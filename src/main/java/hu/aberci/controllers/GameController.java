@@ -1,9 +1,9 @@
 package hu.aberci.controllers;
 
-import com.sun.prism.shader.Solid_TextureYV12_AlphaTest_Loader;
 import hu.aberci.entities.data.ChessClockImpl;
 import hu.aberci.entities.data.SerializableBoardStateImpl;
 import hu.aberci.entities.events.ChessBoardEvent;
+import hu.aberci.entities.events.ChessPawnPromotionEvent;
 import hu.aberci.entities.events.ChessPieceEvent;
 import hu.aberci.entities.interfaces.BoardState;
 import hu.aberci.entities.interfaces.Move;
@@ -13,6 +13,7 @@ import hu.aberci.util.ChessEngineMoveTask;
 import hu.aberci.util.ChessEngineUtil;
 import hu.aberci.util.ExecutorUtil;
 import hu.aberci.views.ChessBoardView;
+import hu.aberci.views.PromotionView;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -68,6 +69,9 @@ public class GameController implements Initializable {
     @FXML
     Label whiteTimeLabel;
 
+    @FXML
+    PromotionView promotionView;
+
     ChessBoardView chessBoard;
 
     int time, increment;
@@ -118,6 +122,15 @@ public class GameController implements Initializable {
                                 AIMove.getPiece(),
                                 AIMove.getTargetTile()
                         );
+
+                        if (AIMove.getPromotingTo() != null) {
+
+                            chessGameController.promotePawnToPieceType(
+                                    AIMove.getPiece(),
+                                    AIMove.getPromotingTo()
+                            );
+
+                        }
 
                     }
             );
@@ -459,12 +472,31 @@ public class GameController implements Initializable {
                 }
         );
 
+        chessBoard.addEventHandler(
+                ChessPawnPromotionEvent.CHESS_PAWN_PROMOTION_EVENT_EVENT_TYPE,
+                chessPawnPromotionEvent -> {
+
+                    System.out.println("PROMOTING");
+
+                    chessGameController.promotePawnToPieceType(
+                            chessPawnPromotionEvent.getPiece(),
+                            chessPawnPromotionEvent.getPieceType()
+                    );
+                }
+        );
+
         if (isAIEnabled && AIColor.equals(chessGameController.boardStateProperty.get().getPlayerTurnProperty().get())) {
 
             // We move the AI if the game starts
             moveAI();
 
         }
+
+        promotionView.getGameSpace().set(
+                chessBoard
+        );
+        promotionView.initialize();
+        promotionView.setVisible(false);
 
     }
 }

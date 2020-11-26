@@ -1,6 +1,7 @@
 package hu.aberci.controllers;
 
 import hu.aberci.entities.data.BoardStateImpl;
+import hu.aberci.entities.data.PieceImpl;
 import hu.aberci.entities.events.ChessBoardEvent;
 import hu.aberci.entities.data.MoveImpl;
 import hu.aberci.entities.data.TileImpl;
@@ -20,15 +21,38 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Class responsible for controlling chess game logic.
+ * */
 public class ChessGameController {
 
+    /**
+     * Stored BoardState. This BoardState is not modified, rather replaced entirely when changing.
+     * This means that everyone listening for changes gets notified.
+     * */
     @Getter
     protected ObjectProperty<BoardState> boardStateProperty;
+
+    /**
+     * The Parent element that will be receiving the events that can occur during gameplay.
+     *
+     * @see ChessBoardEvent
+     * @see ChessPieceEvent
+     * */
     @Setter
     private Parent parent;
 
+    /**
+     * Static number used to identify pieces. A piece recieves a unique ID after creation, so it can be
+     * used to check piece equality.
+     * */
     private static Integer currentPieceId = 0;
 
+    /**
+     * Returns the current ID, then increments it.
+     *
+     * @return the next piece ID
+     * */
     public static Integer nextPieceId() {
 
         Integer toReturn = currentPieceId;
@@ -294,6 +318,73 @@ public class ChessGameController {
 
     }
 
+    public void promotePawnToPieceType(Piece piece, PieceType pieceType) throws PieceIsNotPawnException {
+
+        BoardState newBoardState = new BoardStateImpl(
+                boardStateProperty.get(),
+                true
+        );
+
+        if (!PieceType.PAWN.equals(piece.getPieceTypeProperty().get())) {
+
+            throw new PieceIsNotPawnException();
+
+        }
+
+        Piece pieceInNewBoardState = null;
+
+        for (Piece piece1: newBoardState.getPiecesProperty().get(piece.getPlayerColorProperty().get())) {
+
+            if (piece1.equals(piece)) {
+
+                pieceInNewBoardState = piece1;
+                break;
+
+            }
+
+        }
+
+        Tile tileOfPiece = newBoardState.getTilesProperty().get().get(
+                piece.getTileProperty().get().getXProperty().get()
+        ).get(
+                piece.getTileProperty().get().getYProperty().get()
+        );
+
+        Piece newPiece = new PieceImpl(
+                tileOfPiece,
+                pieceType,
+                piece.getPlayerColorProperty().get()
+        );
+
+        pieceInNewBoardState.getTileProperty().set(null);
+
+        tileOfPiece.getPieceProperty().set(
+                newPiece
+        );
+
+        // pawn gets removed
+        newBoardState.getTakenPiecesProperty().add(
+                piece
+        );
+
+        newBoardState.getPiecesProperty().get(
+                pieceInNewBoardState.getPlayerColorProperty().get()
+        ).remove(
+                pieceInNewBoardState
+        );
+
+        newBoardState.getPiecesProperty().get(
+                pieceInNewBoardState.getPlayerColorProperty().get()
+        ).add(
+                newPiece
+        );
+
+        boardStateProperty.set(
+                newBoardState
+        );
+
+    }
+
     public void movePieceToTile(Piece piece, Tile tile) throws PieceCannotMoveThereException, WrongPlayerTurnException {
 
         BoardState newBoardState = new BoardStateImpl(
@@ -501,12 +592,14 @@ public class ChessGameController {
             parent.fireEvent(new ChessBoardEvent(ChessBoardEvent.CHESS_BOARD_EVENT_DRAW, boardStateProperty.get()));
         }
 
-        if (piece.getPieceTypeProperty().get() == PieceType.PAWN) {
+        if (pieceInNewBoardState.getPieceTypeProperty().get() == PieceType.PAWN) {
             // Because pawns only move forward, if they reach one end of the board
             // they are promoting
-            if (piece.getTileProperty().get().getXProperty().get() == 0 || piece.getTileProperty().get().getXProperty().get() == 7) {
+            if (pieceInNewBoardState.getTileProperty().get().getXProperty().get() == 0 || pieceInNewBoardState.getTileProperty().get().getXProperty().get() == 7) {
 
-                parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PAWN_PROMOTION, new MoveImpl(newBoardState, tile, piece, tile.getPieceProperty().get() != null)));
+                System.out.println("PAWN PROMOTING EVENT");
+
+                parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PAWN_PROMOTION, new MoveImpl(newBoardState, tileInNewBoardState, pieceInNewBoardState, tileInNewBoardState.getPieceProperty().get() != null)));
 
             }
 
@@ -514,7 +607,7 @@ public class ChessGameController {
 
         if (tile.getPieceProperty().get() != null) {
 
-            parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_TAKEN, new MoveImpl(newBoardState, tile, piece, true)));
+            parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_TAKEN, new MoveImpl(newBoardState, tileInNewBoardState, pieceInNewBoardState, true)));
 
         }
 

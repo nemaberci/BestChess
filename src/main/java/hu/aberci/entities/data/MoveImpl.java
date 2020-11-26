@@ -1,9 +1,6 @@
 package hu.aberci.entities.data;
 
-import hu.aberci.entities.interfaces.BoardState;
-import hu.aberci.entities.interfaces.Move;
-import hu.aberci.entities.interfaces.Piece;
-import hu.aberci.entities.interfaces.Tile;
+import hu.aberci.entities.interfaces.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,6 +22,8 @@ public class MoveImpl implements Move {
 
     boolean capture;
 
+    PieceType promotingTo;
+
     public MoveImpl(BoardState b, Tile t, Piece p, boolean isCapture) {
 
         boardState = b;
@@ -32,6 +31,7 @@ public class MoveImpl implements Move {
         piece = p;
         sourceTile = p.getTileProperty().get();
         capture = isCapture;
+        promotingTo = null;
 
     }
 
@@ -42,6 +42,15 @@ public class MoveImpl implements Move {
         piece = p;
         boardState = b;
         capture = isCapture;
+        promotingTo = null;
+
+    }
+
+    public MoveImpl(BoardState b, Tile t, Piece p, boolean isCapture, PieceType promotion) {
+
+        this(b, t, p, isCapture);
+
+        promotingTo = promotion;
 
     }
 

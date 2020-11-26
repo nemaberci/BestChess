@@ -13,29 +13,19 @@ public class PossibleMovesImpls {
 
         int pawnStartingX = PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? 1 : 6;
 
+        boolean canMoveOnce = piece.getTileProperty().get().getXProperty().get() != 7 && piece.getTileProperty().get().getXProperty().get() != 0;
         boolean canMoveTwice = piece.getTileProperty().get().getXProperty().get() == pawnStartingX;
 
         Set<Tile> moves = new HashSet<>();
 
         int pieceX = piece.getTileProperty().get().getXProperty().get();
         int pieceY = piece.getTileProperty().get().getYProperty().get();
+        Tile wantToMoveTo;
 
-        Tile wantToMoveTo = boardState.getTilesProperty().get()
-                .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 1 : pieceX - 1))
-                .get(pieceY);
-
-        if (wantToMoveTo.getPieceProperty().get() == null) {
-
-            moves.add(
-                    wantToMoveTo
-            );
-
-        }
-
-        if (canMoveTwice && wantToMoveTo.getPieceProperty().get() == null) {
+        if (canMoveOnce) {
 
             wantToMoveTo = boardState.getTilesProperty().get()
-                    .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 2 : pieceX - 2))
+                    .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 1 : pieceX - 1))
                     .get(pieceY);
 
             if (wantToMoveTo.getPieceProperty().get() == null) {
@@ -46,43 +36,59 @@ public class PossibleMovesImpls {
 
             }
 
-        }
+            if (canMoveTwice && wantToMoveTo.getPieceProperty().get() == null) {
 
-        boolean canTakeToTheLeft = false;
-        if (pieceY != 0) {
-            canTakeToTheLeft = boardState.getTilesProperty().get()
-                    .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 1 : pieceX - 1))
-                    .get(pieceY - 1)
-                    .getPieceProperty()
-                    .get() != null;
-        }
+                wantToMoveTo = boardState.getTilesProperty().get()
+                        .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 2 : pieceX - 2))
+                        .get(pieceY);
 
-        boolean canTakeToTheRight = false;
-        if (pieceY != 7) {
-            canTakeToTheRight = boardState.getTilesProperty().get()
-                    .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 1 : pieceX - 1))
-                    .get(pieceY + 1)
-                    .getPieceProperty()
-                    .get() != null;
-        }
+                if (wantToMoveTo.getPieceProperty().get() == null) {
 
-        if (canTakeToTheLeft) {
+                    moves.add(
+                            wantToMoveTo
+                    );
 
-            moves.add(
-                    boardState.getTilesProperty().get()
-                            .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 1 : pieceX - 1))
-                            .get(pieceY - 1)
-            );
+                }
 
-        }
+            }
 
-        if (canTakeToTheRight) {
+            boolean canTakeToTheLeft = false;
+            if (pieceY != 0) {
+                canTakeToTheLeft = boardState.getTilesProperty().get()
+                        .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 1 : pieceX - 1))
+                        .get(pieceY - 1)
+                        .getPieceProperty()
+                        .get() != null;
+            }
 
-            moves.add(
-                    boardState.getTilesProperty().get()
-                            .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 1 : pieceX - 1))
-                            .get(pieceY + 1)
-            );
+            boolean canTakeToTheRight = false;
+            if (pieceY != 7) {
+                canTakeToTheRight = boardState.getTilesProperty().get()
+                        .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 1 : pieceX - 1))
+                        .get(pieceY + 1)
+                        .getPieceProperty()
+                        .get() != null;
+            }
+
+            if (canTakeToTheLeft) {
+
+                moves.add(
+                        boardState.getTilesProperty().get()
+                                .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 1 : pieceX - 1))
+                                .get(pieceY - 1)
+                );
+
+            }
+
+            if (canTakeToTheRight) {
+
+                moves.add(
+                        boardState.getTilesProperty().get()
+                                .get((PlayerColor.WHITE.equals(piece.getPlayerColorProperty().get()) ? pieceX + 1 : pieceX - 1))
+                                .get(pieceY + 1)
+                );
+
+            }
 
         }
 

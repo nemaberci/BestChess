@@ -22,7 +22,7 @@ public class PieceImpl implements Piece {
     @Getter
     IntegerProperty IDProperty;
 
-    PieceImpl(Tile startingTile, PieceType pieceType, PlayerColor playerColor) {
+    public PieceImpl(Tile startingTile, PieceType pieceType, PlayerColor playerColor) {
 
         playerColorProperty = new SimpleObjectProperty<>(
                 playerColor
@@ -42,7 +42,7 @@ public class PieceImpl implements Piece {
 
     }
 
-    PieceImpl(Tile startingTile, PieceType pieceType, PlayerColor playerColor, Integer ID) {
+    public PieceImpl(Tile startingTile, PieceType pieceType, PlayerColor playerColor, Integer ID) {
 
         playerColorProperty = new SimpleObjectProperty<>(
                 playerColor
