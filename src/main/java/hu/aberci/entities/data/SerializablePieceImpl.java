@@ -4,6 +4,9 @@ import hu.aberci.entities.interfaces.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+/**
+ * A Serializable version of {@link PieceImpl}
+ * */
 @Data
 @Accessors(chain = true)
 public class SerializablePieceImpl implements SerializablePiece {

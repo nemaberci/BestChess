@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
+/**
+ * A Serializable version of {@link BoardStateImpl}.
+ * */
 @Data
 @Accessors(chain = true)
 public class SerializableBoardStateImpl implements SerializableBoardState {

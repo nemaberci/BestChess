@@ -1,9 +1,14 @@
 package hu.aberci.entities.data;
 
 import lombok.Data;
+import hu.aberci.entities.interfaces.FENCode;
 
+/**
+ * Data class responsible for storing FEN codes.
+ * No special logic is implemented in this class, for more info see: {@link FENCode}
+ * */
 @Data
-public class FENCodeImpl implements hu.aberci.entities.interfaces.FENCode {
+public class FENCodeImpl implements FENCode {
 
     private String board = "";
     private String turn = "0";

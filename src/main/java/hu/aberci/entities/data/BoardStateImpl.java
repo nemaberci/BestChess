@@ -9,7 +9,7 @@ import lombok.Getter;
 import java.util.*;
 
 /**
- *
+ *  Implementation of the BoardState interface
  * */
 @Getter
 public class BoardStateImpl implements BoardState {
@@ -18,25 +18,47 @@ public class BoardStateImpl implements BoardState {
     * UTIL FUNCTIONS TO MAKE CODE SHORTER
     * */
 
+    /**
+     * Util function that makes code more readable
+     * */
     private Piece createRook(Tile tile, PlayerColor playerColor) {
         return new PieceImpl(tile, PieceType.ROOK, playerColor);
     }
+    /**
+     * Util function that makes code more readable
+     * */
     private Piece createBishop(Tile tile, PlayerColor playerColor) {
         return new PieceImpl(tile, PieceType.BISHOP, playerColor);
     }
+    /**
+     * Util function that makes code more readable
+     * */
     private Piece createQueen(Tile tile, PlayerColor playerColor) {
         return new PieceImpl(tile, PieceType.QUEEN, playerColor);
     }
+    /**
+     * Util function that makes code more readable
+     * */
     private Piece createKing(Tile tile, PlayerColor playerColor) {
         return new PieceImpl(tile, PieceType.KING, playerColor);
     }
+    /**
+     * Util function that makes code more readable
+     * */
     private Piece createPawn(Tile tile, PlayerColor playerColor) {
         return new PieceImpl(tile, PieceType.PAWN, playerColor);
     }
+    /**
+     * Util function that makes code more readable
+     * */
     private Piece createKnight(Tile tile, PlayerColor playerColor) {
         return new PieceImpl(tile, PieceType.KNIGHT, playerColor);
     }
 
+    /**
+     * Util function that makes code more readable.
+     * Creates officers at the end of the board. Officers are: rooks, bishops, knights, queens and kings.
+     * */
     private void createOfficers(List<List<Tile>> tiles, int x, int y, List<Piece> pieces, PlayerColor playerColor) {
         if (y % 7 == 0) { // 0 or 7
             Piece piece = createRook(tiles.get(x).get(y), playerColor);
@@ -65,6 +87,13 @@ public class BoardStateImpl implements BoardState {
         }
     }
 
+    /**
+     * Finds a piece with the given pieceID. PieceID-s are unique so there can only exist once Piece
+     * with a given ID.
+     *
+     * @param ID The Piece's ID.
+     * @return The Piece with the given ID.
+     * */
     private Piece findPieceWithID(Integer ID) {
 
         for (PlayerColor playerColor: Arrays.asList(PlayerColor.WHITE, PlayerColor.BLACK)) {
@@ -95,6 +124,11 @@ public class BoardStateImpl implements BoardState {
 
     }
 
+    /**
+     * Generates tiles. Tiles are always in the same 8x8 layout, so we can use this in every constructor.
+     *
+     * @return The generated tiles.
+     * */
     private List<List<Tile>> generateTiles() {
 
         List<List<Tile>> tiles = new ArrayList<>();
@@ -115,30 +149,65 @@ public class BoardStateImpl implements BoardState {
 
     }
 
+    /**
+     * The current player.
+     * */
     @Getter
     ObjectProperty<PlayerColor> playerTurnProperty;
 
+    /**
+     * The chess clock belonging to this BoardState
+     * */
     @Getter
     ObjectProperty<ChessClock> chessClockProperty;
 
+    /**
+     * The tiles of the BoardState.
+     * */
     @Getter
     ListProperty<List<Tile>> tilesProperty;
 
+    /**
+     * The pieces that are still on the board. This is separated to white and black tiles.
+     * A tile is reachable at piecesProperty.get().get(PlayerColor).get(PieceIndex)
+     * */
     @Getter
     MapProperty<PlayerColor, List<Piece>> piecesProperty;
 
+    /**
+     * The moves made during the game.
+     * */
     @Getter
     ListProperty<Move> movesProperty;
 
+    /**
+     * The pieces that are not in the game anymore.
+     * */
     @Getter
     ListProperty<Piece> takenPiecesProperty;
 
+    /**
+     * Counts how many times a certain position has been reached. A game is drawn after a position has been reached three times.
+     * */
     @Getter
     MapProperty<String, Integer> positionCounterProperty;
 
+    /**
+     * Shows if the current board is time controlled.
+     * */
     @Getter
     BooleanProperty isTimeControlledProperty;
 
+    /**
+     * Generates a BoardState with a clock using the given time control settings and generates the asked properties.
+     * Sets the time controlled property to false.
+     *
+     * @param startingTime The clock's starting time in seconds. Both sides start with the same time.
+     * @param increment The clock's increment in seconds.
+     * @param generatePieces Tells the constructor whether to generate pieces or not.
+     * @param generateTiles Tells the constructor to generate tiles ot not.
+     * @throws NoTilesException When generating pieces but not tiles.
+     * */
     public BoardStateImpl(int startingTime, int increment, boolean generateTiles, boolean generatePieces) throws NoTilesException {
 
         isTimeControlledProperty = new SimpleBooleanProperty(false);
@@ -240,6 +309,10 @@ public class BoardStateImpl implements BoardState {
 
     }
 
+    /**
+     * Copy constructor for BoardState implementation. When a BoardState is copied, we do not replicate moves.
+     * Creates a deep copy of another BoardState.
+     * */
     public BoardStateImpl(BoardState boardState) {
 
         isTimeControlledProperty = new SimpleBooleanProperty(
@@ -320,6 +393,10 @@ public class BoardStateImpl implements BoardState {
 
     }
 
+    /**
+     * Copy constructor that also copies moves.
+     * Deep copies another BoardState
+     * */
     public BoardStateImpl(BoardState boardState, boolean copyMoves) {
 
         this(boardState);
@@ -427,6 +504,9 @@ public class BoardStateImpl implements BoardState {
 
     }
 
+    /**
+     * Deserializes a BoardState. Properties are not serializable so a BoardStateImpl cannot be serialized directly.
+     * */
     public BoardStateImpl(SerializableBoardState serializableBoardState) {
 
         isTimeControlledProperty = new SimpleBooleanProperty(
@@ -581,6 +661,10 @@ public class BoardStateImpl implements BoardState {
 
     }
 
+    /**
+     * Gets the {@link FENCode} of the current position. This is used by the engine and can be used
+     * to export a given position.
+     * */
     public FENCode getFEN() {
 
         FENCodeImpl toReturn = new FENCodeImpl();

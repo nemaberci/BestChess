@@ -1,22 +1,20 @@
 package hu.aberci.entities.data;
 
-import com.sun.prism.shader.Solid_TextureYV12_AlphaTest_Loader;
-import hu.aberci.entities.events.ChessBoardEvent;
-import hu.aberci.entities.interfaces.BoardState;
 import hu.aberci.entities.interfaces.ChessClock;
 import hu.aberci.entities.interfaces.PlayerColor;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.scene.Parent;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-import java.util.concurrent.*;
-
+/**
+ * Data class responsible for storing the properties of the chess clock
+ * No special logic is implemented in this class, for more info see: {@link ChessClock}
+ * */
 @Accessors(chain = true)
 @NoArgsConstructor
 public class ChessClockImpl implements ChessClock {

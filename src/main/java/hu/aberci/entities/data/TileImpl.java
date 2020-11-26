@@ -8,6 +8,10 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import lombok.Getter;
 
+/**
+ * Data class used for storing Tiles.
+ * No special logic is implemented in this class, for more info see: {@link Tile}
+ * */
 public class TileImpl implements Tile {
 
     @Getter
@@ -16,6 +20,13 @@ public class TileImpl implements Tile {
     @Getter
     IntegerProperty xProperty, yProperty;
 
+    /**
+     * Creates a new Tile
+     *
+     * @param x The X coordinate of the Tile on the board.
+     * @param y The Y coordinate of the Tile on the board.
+     * @param startingPiece The Piece on the Tile at creation.
+     * */
     public TileImpl(Piece startingPiece, int x, int y) {
 
         xProperty = new SimpleIntegerProperty(x);
@@ -25,6 +36,9 @@ public class TileImpl implements Tile {
 
     }
 
+    /**
+     * Copy constructor for Tile. Not used.
+     * */
     public TileImpl(Tile tile) {
 
         pieceProperty = new SimpleObjectProperty<>();

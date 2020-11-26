@@ -7,6 +7,9 @@ import hu.aberci.entities.interfaces.SerializableTile;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+/**
+ * A Serializable version of {@link MoveImpl}
+ * */
 @Data
 @Accessors(chain = true)
 public class SerializableMoveImpl implements SerializableMove {
