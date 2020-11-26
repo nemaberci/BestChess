@@ -45,6 +45,8 @@ public class GameMain extends Application {
         stage.setScene(scene);
         stage.show();
 
+        stage.setResizable(false);
+
         stage.setOnCloseRequest(
                 windowEvent -> {
 

@@ -9,7 +9,6 @@ public class ChessBoardEvent extends ChessEvent {
 
     public static final EventType<ChessBoardEvent> CHESS_BOARD_EVENT_CHECKMATE = new EventType<>(ChessEvent.CHESS_EVENT_EVENT_TYPE, "Checkmate");
     public static final EventType<ChessBoardEvent> CHESS_BOARD_EVENT_DRAW = new EventType<>(ChessEvent.CHESS_EVENT_EVENT_TYPE, "Draw");
-    public static final EventType<ChessBoardEvent> CHESS_BOARD_EVENT_PROMOTION = new EventType<>(ChessEvent.CHESS_EVENT_EVENT_TYPE, "BoardPromotion");
     public static final EventType<ChessBoardEvent> CHESS_BOARD_EVENT_CHECK = new EventType<>(ChessEvent.CHESS_EVENT_EVENT_TYPE, "Check");
     public static final EventType<ChessBoardEvent> CHESS_BOARD_EVENT_CLOCK_FLAG = new EventType<>(ChessEvent.CHESS_EVENT_EVENT_TYPE, "ClockFlag");
 

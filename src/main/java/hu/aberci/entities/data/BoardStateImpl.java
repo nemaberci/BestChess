@@ -6,9 +6,11 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import lombok.Getter;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
+/**
+ *
+ * */
 @Getter
 public class BoardStateImpl implements BoardState {
 

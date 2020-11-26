@@ -1,6 +1,5 @@
 package hu.aberci.controllers;
 
-import hu.aberci.entities.data.ChessClockImpl;
 import hu.aberci.entities.data.SerializableBoardStateImpl;
 import hu.aberci.entities.events.ChessBoardEvent;
 import hu.aberci.entities.events.ChessPawnPromotionEvent;
@@ -15,72 +14,128 @@ import hu.aberci.util.ExecutorUtil;
 import hu.aberci.views.ChessBoardView;
 import hu.aberci.views.PromotionView;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import javafx.util.converter.NumberStringConverter;
-import org.apache.commons.lang3.SystemUtils;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.util.ResourceBundle;
-
 import static java.lang.Integer.parseInt;
 
+/**
+ * Class responsible for the game GUI. This is the controller class for the FXML file game.fxml.
+ * This class is not constructed by hand, the FXMLLoader creates this task and then calls its inner
+ * initialize function.
+ * */
 public class GameController implements Initializable {
 
+    /**
+     * The ChessGameController that controls the game logic.
+     * */
     ChessGameController chessGameController;
 
+    /**
+     * The ChessClockController responsible for the game's clock.
+     * */
     ChessClockController chessClockController;
 
+    /**
+     * The GridPane responsible for hosting the TileViews and PieceViews.
+     * */
     @FXML
-    ChessBoardView gridPane;
+    ChessBoardView chessBoard;
 
+    /**
+     * The button that sends the user back to the menu when clicked. This button is always visible.
+     * */
     @FXML
     Button backToMenu;
 
+    /**
+     * The button that starts a new game. This button is only visible after a game ends.
+     * */
     @FXML
     Button newGame;
 
+    /**
+     * The text area that shows the game state after the game ended. It shows whether the game was drawn
+     * or won. If the game was won by one side, shows who won. This is hidden by default and is
+     * only visible when the game is over.
+     * */
     @FXML
     TextArea textArea;
 
+    /**
+     * Displays white's remaining time in seconds. Not visible when the clock is disabled.
+     * */
     @FXML
     TextArea whiteTime;
 
+    /**
+     * Displays black's remaining time in seconds. Not visible when the clock is disabled.
+     * */
     @FXML
     TextArea blackTime;
 
+    /**
+     * Says that the black time box is black's time. Is only visible when black's time is.
+     * */
     @FXML
     Label blackTimeLabel;
 
+    /**
+     * Says that the white time box is white's time. Is only visible when white's time is.
+     * */
     @FXML
     Label whiteTimeLabel;
 
+    /**
+     * The GridPane responsible for storing the promotion views (PromotionPieceView). This is
+     * not visible by default. It is only visible when a pawn is promoting.
+     * */
     @FXML
     PromotionView promotionView;
 
-    ChessBoardView chessBoard;
+    /**
+     * The MenuItem that restarts the game. It is only visible when the New Game button is visible.
+     * */
+    @FXML
+    private MenuItem restartButton;
 
+    /**
+     * Variable used in the chess clock. This value is read from the MenuController or
+     * a previously loaded BoardState.
+     * */
     int time, increment;
 
+    /**
+     * Shows if the current game has the chess clock enabled. This value is read from the MenuController
+     * or a previously loaded BoardState.
+     * */
     private boolean isChessClock = false;
+    /**
+     * Shows if the current game has AI enabled. This value is read from the MenuController.
+     * */
     private boolean isAIEnabled = false;
 
+    /**
+     * Only used when AI is enabled. Shows which side the AI is playing.
+     * */
     private PlayerColor AIColor = PlayerColor.BLACK;
 
+    /**
+     * Sends the AI (Stockfish) the current position and time controls. Creates a new {@link ChessEngineMoveTask}
+     * that parses the AI's answer and gives its move. After recieving the move, this function executes it.
+     * */
     private void moveAI() {
 
         BoardState boardState = chessBoard.getBoardStateProperty().get();
@@ -143,7 +198,10 @@ public class GameController implements Initializable {
 
     }
 
-    private void restart() {
+    /**
+     * Restarts the game without going back into the menu.
+     * */
+    public void restart() {
 
         textArea.setVisible(false);
 
@@ -158,7 +216,7 @@ public class GameController implements Initializable {
 
         chessGameController = new ChessGameController(null, time, increment);
 
-        chessGameController.setParent(gridPane);
+        chessGameController.setParent(chessBoard);
 
         chessBoard.getBoardStateProperty()
                 .bindBidirectional(chessGameController.getBoardStateProperty());
@@ -176,6 +234,9 @@ public class GameController implements Initializable {
 
     }
 
+    /**
+     * No argument constructor. This is called by the FXMLLoader. Only non-GUI things are initialized here.
+     * */
     public GameController() {
 
         chessClockController = null;
@@ -195,7 +256,7 @@ public class GameController implements Initializable {
             chessGameController = new ChessGameController(null, clockTime, clockIncrement);
 
             chessClockController = new ChessClockController(
-                    gridPane,
+                    chessBoard,
                     chessGameController.getBoardStateProperty().get(),
                     chessGameController.getBoardStateProperty().get().getChessClockProperty().get()
             );
@@ -213,6 +274,10 @@ public class GameController implements Initializable {
 
     }
 
+    /**
+     * Writes the current game state into a file. This function is called every time a move is made
+     * or a second passes.
+     * */
     private void saveGame() {
 
         File file = new File(GameMain.savedGameFileName);
@@ -241,6 +306,45 @@ public class GameController implements Initializable {
 
     }
 
+    /**
+     * Moves back to the menu. It does this by asking the FXMLLoader to load the file menu.fxml.
+     * */
+    public void backToMenu() {
+
+        if (isChessClock) {
+
+            ExecutorUtil.stop();
+
+        }
+
+        /*
+         * Same thing as in MenuController
+         *  */
+
+        try {
+
+            final FXMLLoader loader = new FXMLLoader(
+                    MenuController.class.getResource("/fxml/menu.fxml")
+            );
+
+            loader.setRoot(null);
+
+            ((Stage) backToMenu.getScene().getWindow()).setScene(
+                    new Scene(loader.load())
+            );
+
+        } catch (Exception exception) {
+
+            exception.printStackTrace();
+
+        }
+
+    }
+
+    /**
+     * Initializes the GUI. Reads the current settings from the MenuController, sets the
+     * event handlers for the chess board and moves the AI if necessary.
+     * */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
@@ -268,9 +372,8 @@ public class GameController implements Initializable {
 
         }
 
-        chessGameController.setParent(gridPane);
+        chessGameController.setParent(chessBoard);
 
-        chessBoard = gridPane;
         chessBoard.initialize();
 
         chessGameController.getBoardStateProperty().get().getIsTimeControlledProperty().set(
@@ -357,36 +460,16 @@ public class GameController implements Initializable {
                 }
         );
 
+        restartButton.disableProperty().bind(
+                newGame.visibleProperty().not()
+        );
+
         backToMenu.setOnAction(
                 new EventHandler<ActionEvent>() {
 
                     @Override
                     public void handle(ActionEvent actionEvent) {
-                        try {
-
-                            if (isChessClock) {
-
-                                ExecutorUtil.stop();
-
-                            }
-
-                            /*
-                            * Same thing as in MenuController
-                            *  */
-
-                            final FXMLLoader loader = new FXMLLoader(
-                                    MenuController.class.getResource("/fxml/menu.fxml")
-                            );
-
-                            loader.setRoot(null);
-
-                            ((Stage) backToMenu.getScene().getWindow()).setScene(
-                                    new Scene(loader.load())
-                            );
-
-                        } catch (Exception exception) {
-                            exception.printStackTrace();
-                        }
+                        backToMenu();
                     }
                 }
         );
