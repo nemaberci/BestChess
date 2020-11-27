@@ -2,6 +2,9 @@ package hu.aberci.entities.interfaces;
 
 import java.io.Serializable;
 
+/**
+ * Serializable version of {@link ChessClock}.
+ * */
 public interface SerializableChessClock extends Serializable {
 
     PlayerColor getPlayerColor();

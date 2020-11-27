@@ -2,6 +2,9 @@ package hu.aberci.entities.interfaces;
 
 import java.io.Serializable;
 
+/**
+ * Serializable version of {@link Tile}.
+ * */
 public interface SerializableTile extends Serializable {
 
     Integer getX();

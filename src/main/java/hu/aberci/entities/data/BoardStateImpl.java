@@ -874,7 +874,7 @@ public class BoardStateImpl implements BoardState {
 
         }
 
-        toReturn.setTurnNumber(Integer.toString(movesProperty.get().size() / 2));
+        toReturn.setTurnNumber(Integer.toString(1 + movesProperty.get().size() / 2));
 
         return toReturn;
 

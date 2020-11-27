@@ -6,6 +6,8 @@ import javafx.scene.image.Image;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -14,19 +16,19 @@ public class Util {
 
     public static Set<Tile> getAllLegalMoves(BoardState boardState, Piece piece) {
 
-        Set<Tile> possibleTiles = piece.getPieceTypeProperty().get().possibleMoves.possibleMoves(boardState, piece);
-        Stream<MoveImpl> possibleMoves = possibleTiles.stream()
+        Set<Tile> baseTiles = piece.getPieceTypeProperty().get().possibleMoves.possibleMoves(boardState, piece);
+        Stream<MoveImpl> baseMoves = baseTiles.stream()
                 .map(tile -> new MoveImpl(boardState, tile, piece, false))
                 .filter(Predicates.pieceOnTileIsNotOfPlayerColor)
                 .filter(Predicates.isPlayerNotInCheckAfterMove);
 
         /*System.out.println("Moves after first filter: " +
-                possibleTiles.stream()
+                baseTiles.stream()
                 .map(tile -> new MoveImpl(boardState, tile, piece, false))
                 .filter(Predicates.pieceOnTileIsNotOfPlayerColor).collect(Collectors.toSet()).size()
         );
 
-        System.out.println("Moves after second filter: " + possibleTiles.stream()
+        System.out.println("Moves after second filter: " + baseTiles.stream()
                 .map(tile -> new MoveImpl(boardState, tile, piece, false))
                 .filter(Predicates.pieceOnTileIsNotOfPlayerColor)
                 .filter(Predicates.isPlayerNotInCheckAfterMove).collect(Collectors.toSet()).size()
@@ -34,9 +36,9 @@ public class Util {
 
         if (piece.getPieceTypeProperty().get() != PieceType.KNIGHT) {
 
-            possibleMoves = possibleMoves.filter(Predicates.isTargetTileReachableFromPiece);
+            baseMoves = baseMoves.filter(Predicates.isTargetTileReachableFromPiece);
 
-            /*System.out.println("Moves after (third) filter: " + possibleTiles.stream()
+            /*System.out.println("Moves after (third) filter: " + baseTiles.stream()
                     .map(tile -> new MoveImpl(boardState, tile, piece, false))
                     .filter(Predicates.pieceOnTileIsNotOfPlayerColor)
                     .filter(Predicates.isPlayerNotInCheckAfterMove)
@@ -45,9 +47,197 @@ public class Util {
 
         }
 
-        possibleTiles = possibleMoves.map(MoveImpl::getTargetTile).collect(Collectors.toSet());
+        baseTiles = baseMoves.map(MoveImpl::getTargetTile).collect(Collectors.toSet());
 
-        return  possibleTiles;
+        /*
+         * We add en passant logic
+         * en passant can happen if one is true:
+         *   - a black pawn moved from (x, y) to (x-2, y) and there exists a white pawn on (x, y-1) or (x, y+1)
+         *   - a white pawn moved from (x, y) to (x+2, y) and there exists a black pawn on (x, y-1) or (x, y+1)
+         * */
+
+        if (boardState.getMovesProperty().get().size() != 0) {
+
+            Move lastMove = null;
+
+            lastMove = boardState.getMovesProperty().get().get(
+                    boardState.getMovesProperty().get().size() - 1);
+
+            if (PieceType.PAWN.equals(lastMove.getPiece().getPieceTypeProperty().get()) &&
+                    Math.abs(lastMove.getSourceTile().getXProperty().get() - lastMove.getTargetTile().getXProperty().get()) == 2) {
+
+                if (piece.getTileProperty().get().getXProperty().get() == lastMove.getTargetTile().getXProperty().get() &&
+                        Math.abs(piece.getTileProperty().get().getYProperty().get() - lastMove.getSourceTile().getYProperty().get()) == 1) {
+
+                    // only now can we take en passant
+
+                    baseTiles.add(
+                            boardState.getTilesProperty().get()
+                                    .get(
+                                            (lastMove.getSourceTile().getXProperty().get() + lastMove.getTargetTile().getXProperty().get()) / 2
+                                    )
+                                    .get(
+                                            lastMove.getSourceTile().getYProperty().get()
+                                    )
+                    );
+
+                }
+
+            }
+
+        }
+
+        /*
+         * We add castling logic
+         * A king can castle if
+         *   - he has not moved and
+         *   - the rook he wants to castle with has not moved
+         *   - and there are no pieces in between
+         *  */
+
+        if (PieceType.KING.equals(piece.getPieceTypeProperty().get())) {
+
+            boolean hasMoved = false;
+
+            for (Move move: boardState.getMovesProperty().get()) {
+
+                if (move.getPiece().equals(piece)) {
+
+                    hasMoved = true;
+                    break;
+
+                }
+
+            }
+
+            if (!hasMoved) {
+
+                // We try to find the rooks to castle with
+
+                for (Piece potentialRook: boardState.getPiecesProperty().get(
+                        piece.getPlayerColorProperty().get()
+                )) {
+
+                    if (PieceType.ROOK.equals(potentialRook.getPieceTypeProperty().get())) {
+
+                        boolean rookHasMoved = false;
+
+                        for (Move move: boardState.getMovesProperty().get()) {
+
+                            if (move.getPiece().equals(potentialRook)) {
+
+                                rookHasMoved = true;
+                                break;
+
+                            }
+
+                        }
+
+                        // At this point we have found a rook that has not moved yet and so has the king
+                        // Now we have to check every square between them to make sure
+                        // they can switch places
+
+                        int kingX = piece.getTileProperty().get().getXProperty().get();
+                        int kingY = piece.getTileProperty().get().getYProperty().get();
+                        int rookY = potentialRook.getTileProperty().get().getYProperty().get();
+
+                        boolean canCastle = true;
+
+                        while (rookY != kingY) {
+
+                            if (rookY > kingY) {
+                                rookY--;
+                            }
+                            if (rookY < kingY) {
+                                rookY++;
+                            }
+
+                            if (rookY == kingY) {
+                                break;
+                            }
+
+                            if (boardState.getTilesProperty().get(
+                                    kingX
+                            ).get(
+                                    rookY
+                            ).getPieceProperty().get() != null) {
+
+                                canCastle = false;
+                                break;
+
+                            }
+
+                        }
+
+                        // Castling is only possible if the king is not in check in any of the 3 squares
+                        // (king's square, the square he is moving to, and the one in-between)
+
+                        rookY = potentialRook.getTileProperty().get().getYProperty().get();
+
+                        List<Move> theoreticalMoves = new ArrayList<>();
+                        int futureY = (rookY > kingY) ? kingY + 2 : kingY - 2;
+
+                        theoreticalMoves.add(
+                                new MoveImpl(
+                                        boardState,
+                                        boardState.getTilesProperty().get(kingX).get(kingY),
+                                        boardState.getTilesProperty().get(kingX).get(futureY),
+                                        piece,
+                                        false
+                                )
+                        );
+
+                        theoreticalMoves.add(
+                                new MoveImpl(
+                                        boardState,
+                                        boardState.getTilesProperty().get(kingX).get(kingY),
+                                        boardState.getTilesProperty().get(kingX).get((rookY > kingY) ? kingY + 1 : kingY - 1),
+                                        piece,
+                                        false
+                                )
+                        );
+
+                        theoreticalMoves.add(
+                                new MoveImpl(
+                                        boardState,
+                                        boardState.getTilesProperty().get(kingX).get(kingY),
+                                        boardState.getTilesProperty().get(kingX).get(kingY),
+                                        piece,
+                                        false
+                                )
+                        );
+
+                        for (Move theoreticalMove: theoreticalMoves) {
+
+                            if (!Predicates.isPlayerNotInCheckAfterMove.test(theoreticalMove)) {
+
+                                canCastle = false;
+
+                            }
+
+                        }
+
+                        if (canCastle) {
+
+                            baseTiles.add(
+                                    boardState.getTilesProperty().get(
+                                            kingX
+                                    ).get(
+                                            futureY
+                                    )
+                            );
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        return  baseTiles;
 
     }
 

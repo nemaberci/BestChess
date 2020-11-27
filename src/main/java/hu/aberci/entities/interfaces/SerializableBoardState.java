@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Serializable version of {@link BoardState}.
+ * */
 public interface SerializableBoardState extends Serializable {
 
     ArrayList<ArrayList<SerializableTile>> getTiles();
