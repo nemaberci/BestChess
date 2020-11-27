@@ -22,29 +22,62 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Custom GridPane housing the TileViews of a chess board. The PieceViews of a chess board are
+ * stored in the TileViews.
+ * */
 public class ChessBoardView extends GridPane {
 
+    /**
+     * JAVAFX property storing the BoardState.
+     * */
     @Getter
     ObjectProperty<BoardState> boardStateProperty = new SimpleObjectProperty<>();
+    /**
+     * JAVAFX property storing the PieceViews similar to how they are stored in the {@link BoardState}.
+     * */
     @Getter
     ObservableMap<PlayerColor, List<PieceView>> pieceViews;
+    /**
+     * JAVAFX property storing the TileViews similar to how they are stored in the {@link BoardState};
+     * */
     @Getter
     ObservableList<ObservableList<TileView>> tileViews;
 
+    /**
+     * JAVAFX property storing the currently selected PieceView. On the board all tiles are shown green
+     * where the selected piece (the piece belonging to the selected PieceView) can move legally.
+     * */
     @Getter
     ObjectProperty<PieceView> selectedPieceView;
+    /**
+     * JAVAFX property storing the TileViews belonging to the selected Piece's legal move tiles.
+     * */
     @Getter
     ListProperty<TileView> selectedPieceLegalMoves;
 
+    /**
+     * The chessGameController that determines whether a given Piece can move to a given Tile.
+     * */
     @Setter
     ChessGameController chessGameController;
 
+    /**
+     * JAVAFX property that determines whether the board should be played with an engine.
+     * */
     @Getter
     BooleanProperty chessAIEnabledProperty;
 
+    /**
+     * JAVAFX property. Only used when the game is played with an engine. If it is, this determines
+     * which side the engine plays.
+     * */
     @Getter
     ObjectProperty<PlayerColor> chessAIColorProperty;
 
+    /**
+     * Default constructor. Initializes the inner properties, adds its own event handlers.
+     * */
     public ChessBoardView() {
 
         super();
@@ -61,90 +94,82 @@ public class ChessBoardView extends GridPane {
 
         addEventHandler(
                 ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_MOVING,
-                new EventHandler<ChessPieceEvent>() {
-                    @Override
-                    public void handle(ChessPieceEvent chessPieceEvent) {
+                chessPieceEvent -> {
 
-                        if (chessGameController.canPieceMoveToTile(chessPieceEvent.getMove().getPiece(), chessPieceEvent.getMove().getTargetTile())) {
+                    if (chessGameController.canPieceMoveToTile(chessPieceEvent.getMove().getPiece(), chessPieceEvent.getMove().getTargetTile())) {
 
-                            chessGameController.movePieceToTile(chessPieceEvent.getMove().getPiece(), chessPieceEvent.getMove().getTargetTile());
+                        chessGameController.movePieceToTile(chessPieceEvent.getMove().getPiece(), chessPieceEvent.getMove().getTargetTile());
 
-                            selectedPieceView = new SimpleObjectProperty<>(null);
+                        selectedPieceView = new SimpleObjectProperty<>(null);
 
-                        } else {
+                    } else {
 
-                            selectedPieceView = new SimpleObjectProperty<>(null);
-
-                        }
+                        selectedPieceView = new SimpleObjectProperty<>(null);
 
                     }
+
                 }
         );
 
         addEventHandler(
                 ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_SELECTED,
-                new EventHandler<ChessPieceEvent>() {
-                    @Override
-                    public void handle(ChessPieceEvent chessPieceEvent) {
+                chessPieceEvent -> {
 
-                        selectedPieceLegalMoves.clear();
+                    selectedPieceLegalMoves.clear();
 
-                        if (chessAIEnabledProperty.get()) {
+                    if (chessAIEnabledProperty.get()) {
 
-                            if (chessAIColorProperty.get().equals(
-                                    boardStateProperty.get().getPlayerTurnProperty().get()
-                            )) {
+                        if (chessAIColorProperty.get().equals(
+                                boardStateProperty.get().getPlayerTurnProperty().get()
+                        )) {
 
-                                selectedPieceView.set(null);
-                                return;
-
-                            }
-
-                        }
-
-                        if (selectedPieceView.get() != null &&
-                                selectedPieceView.get().getPieceProperty().get().getPlayerColorProperty().get() == boardStateProperty.get().getPlayerTurnProperty().get()) {
-
-                            // System.out.println(chessGameController.getLegalMovesOf(chessPieceEvent.getMove().getPiece()).size());
-
-                            for (TileView tileView: chessGameController.getLegalMovesOf(chessPieceEvent.getMove().getPiece()).stream().map(
-                                    tile -> tileViews.get(
-                                            tile.getXProperty().get()
-                                    ).get(
-                                            tile.getYProperty().get()
-                                    )
-                            ).collect(Collectors.toList())) {
-
-                                // System.out.println(tileView);
-
-                                selectedPieceLegalMoves.add(
-                                        tileView
-                                );
-
-                            }
-
-                        } else {
-
-                            selectedPieceView.set(
-                                    null
-                            );
+                            selectedPieceView.set(null);
+                            return;
 
                         }
 
                     }
+
+                    if (selectedPieceView.get() != null &&
+                            selectedPieceView.get().getPieceProperty().get().getPlayerColorProperty().get() == boardStateProperty.get().getPlayerTurnProperty().get()) {
+
+                        for (TileView tileView: chessGameController.getLegalMovesOf(chessPieceEvent.getMove().getPiece()).stream().map(
+                                tile -> tileViews.get(
+                                        tile.getXProperty().get()
+                                ).get(
+                                        tile.getYProperty().get()
+                                )
+                        ).collect(Collectors.toList())) {
+
+                            selectedPieceLegalMoves.add(
+                                    tileView
+                            );
+
+                        }
+
+                    } else {
+
+                        selectedPieceView.set(
+                                null
+                        );
+
+                    }
+
                 }
         );
 
     }
 
+    /**
+     * Initializer function. Should be used after setting the inner boardStateProperty.
+     * Adds change listener to the inner boardStateProperty, redrawing after every change.
+     * */
     public void initialize() {
 
         tileViews = FXCollections.observableList(new ArrayList<>());
 
         boardStateProperty.addListener(
                 (obs, old, val) -> {
-
-                    //System.out.println("Changing");
 
                     getChildren().clear();
                     getRowConstraints().clear();
@@ -180,7 +205,6 @@ public class ChessBoardView extends GridPane {
 
                             // I messed up my coordinate system kind-of, so we display them correctly now
                             add(tileView, tile.getYProperty().get(), 7 - tile.getXProperty().get());
-                            // System.out.println("ADDED NEW TILEVIEW AT " + tile.getXProperty().get() + ", " + tile.getYProperty().get());
 
                             tileView.setPrefSize(50, 50);
                             tileView.setMaxSize(50, 50);
@@ -188,8 +212,6 @@ public class ChessBoardView extends GridPane {
                         }
 
                     }
-
-                    //setGridLinesVisible(true);
 
                     List<PieceView> whitePieceViews = new ArrayList<>();
                     List<PieceView> blackPieceViews = new ArrayList<>();

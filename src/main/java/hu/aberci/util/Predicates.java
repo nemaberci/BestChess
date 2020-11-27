@@ -2,18 +2,26 @@ package hu.aberci.util;
 
 import hu.aberci.entities.data.BoardStateImpl;
 import hu.aberci.entities.data.MoveImpl;
-import hu.aberci.entities.data.TileImpl;
 import hu.aberci.entities.interfaces.*;
 
 import java.util.*;
-import java.util.function.BiPredicate;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Predicates used for determining if a move is valid in a position.
+ * All predicates that filter moves
+ * ({@link Predicates#pieceOnTileIsNotOfPlayerColor}, {@link Predicates#isTargetTileReachableFromPiece}, {@link Predicates#isPlayerNotInCheckAfterMove})
+ * are made so that they return true if the move is valid and false otherwise.
+ * */
 public class Predicates {
 
+    /**
+     * No piece can move to a tile that has a friendly piece on it. This Predicate checks if a given move
+     * would move the piece to a tile with a friendly piece on it. Returns {@code true} if it does not
+     * contain a friendly piece and {@code false} if it does.
+     * */
     public static Predicate<Move> pieceOnTileIsNotOfPlayerColor = (move) -> {
         if (move.getTargetTile().getPieceProperty().get() == null) {
             return true;
@@ -21,6 +29,11 @@ public class Predicates {
         return move.getTargetTile().getPieceProperty().get().getPlayerColorProperty().get() != move.getPiece().getPlayerColorProperty().get();
     };
 
+    /**
+     * Every piece (except for the knight) can only move to connected tiles. If it can not
+     * move to a tile then it can not move to the tile behind it. This Predicate checks if the target Tile
+     * of a move can be reached from the sourceTile. Returns {@code true} if is and {@code false} if it is not.
+     * */
     public static Predicate <Move> isTargetTileReachableFromPiece = (move) -> {
 
         int targetTileX = move.getTargetTile().getXProperty().get();
@@ -59,6 +72,10 @@ public class Predicates {
 
     };
 
+    /**
+     * Checks if the player whose turn it currently is is in check or not. This is not to be used
+     * to filter moves. Returns {@code true} if the player is in check and {@code false} if they are not.
+     * */
     public static Predicate<BoardState> isPlayerInCheck = boardState -> {
 
         Tile tileOfKing = null;
@@ -78,7 +95,7 @@ public class Predicates {
         for (Piece opponentPiece: boardState.getPiecesProperty().get().get(opponentPlayerColor)) {
 
             Set<Tile> possibleTiles = opponentPiece.getPieceTypeProperty().get()
-                    .possibleMoves.possibleMoves(boardState, opponentPiece);
+                    .moveGenerator.moveGenerator(boardState, opponentPiece);
 
             Stream<Move> possibleMoves = possibleTiles.stream().map(
                     tile -> new MoveImpl(boardState, tile, opponentPiece, false)
@@ -106,6 +123,11 @@ public class Predicates {
 
     };
 
+    /**
+     * A move is only legal if after making it, the player who made is is not in check. We check this
+     * by creating a new BoardState, make the move and check if the player is in check after it.
+     * Returns {@code true} if the move is legal and {@code false} otherwise.
+     * */
     public static Predicate<Move> isPlayerNotInCheckAfterMove = (move) -> {
 
         // We create new boardstate

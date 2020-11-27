@@ -1,7 +1,7 @@
 package hu.aberci.entities.interfaces;
 
-import hu.aberci.util.PossibleMovesImpls;
-import hu.aberci.util.interfaces.PossibleMoves;
+import hu.aberci.entities.piecetypes.*;
+import hu.aberci.util.interfaces.MoveGenerator;
 
 import java.io.Serializable;
 
@@ -13,33 +13,33 @@ public enum PieceType implements Serializable {
     /**
      * Describes a pawn.
      * */
-    PAWN(PossibleMovesImpls.possiblePawnMoves, 'p', "pawn"),
+    PAWN(new Pawn(), 'p', "pawn"),
     /**
      * Describes a rook.
      * */
-    ROOK(PossibleMovesImpls.possibleRookMoves, 'r', "rook"),
+    ROOK(new Rook(), 'r', "rook"),
     /**
      * Describes a bishop.
      * */
-    BISHOP(PossibleMovesImpls.possibleBishopMoves, 'b', "bishop"),
+    BISHOP(new Bishop(), 'b', "bishop"),
     /**
      * Describes a knight.
      * */
-    KNIGHT(PossibleMovesImpls.possibleKnightMoves, 'n', "knight"),
+    KNIGHT(new Knight(), 'n', "knight"),
     /**
      * Describes a queen.
      * */
-    QUEEN(PossibleMovesImpls.possibleQueenMoves, 'q', "queen"),
+    QUEEN(new Queen(), 'q', "queen"),
     /**
      * Describes a king.
      * */
-    KING(PossibleMovesImpls.possibleKingMoves, 'k', "king");
+    KING(new King(), 'k', "king");
 
     /**
      * functional interface returning the possible tiles that can be reached by a given piece
      * on a given board state.
      * */
-    public final PossibleMoves possibleMoves;
+    public final MoveGenerator moveGenerator;
 
     /**
      * Character used in a FENCode's board describing portion.
@@ -77,8 +77,8 @@ public enum PieceType implements Serializable {
     /**
      * Only constructor.
      * */
-    PieceType(PossibleMoves _possibleMoves, char feNchar, String name) {
-        possibleMoves = _possibleMoves;
+    PieceType(MoveGenerator _moveGenerator, char feNchar, String name) {
+        moveGenerator = _moveGenerator;
         FENchar = feNchar;
         this.name = name;
     }

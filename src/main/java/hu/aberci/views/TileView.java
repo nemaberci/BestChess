@@ -11,17 +11,33 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import lombok.Getter;
 
+/**
+ * Custom View housing a single Tile of a chess board.
+ * */
 public class TileView extends StackPane {
 
+    /**
+     * JAVAFX property that stores the Tile for this TileView.
+     * */
     @Getter
     ObjectProperty<Tile> tileProperty;
 
+    /**
+     * The Parent element that will receive the events.
+     * */
     ChessBoardView parent;
 
-    PieceView child;
-
+    /**
+     * This is done so "this" can be used in event handlers.
+     * */
     TileView me;
 
+    /**
+     * Creates a new TileView with parent element gridPane and inner tile tile.
+     *
+     * @param gridPane The parent element that will receive the events.
+     * @param tile The tile that is stored in this TileView.
+     * */
     public TileView(ChessBoardView gridPane, Tile tile) {
 
         tileProperty = new SimpleObjectProperty<>(tile);

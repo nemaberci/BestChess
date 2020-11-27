@@ -7,11 +7,23 @@ import lombok.Setter;
 
 import static hu.aberci.util.ChessEngineUtil.parseStockfishAnswer;
 
+/**
+ * Task that returns a Move to be played by the engine.
+ * */
 public class ChessEngineMoveTask extends Task<Move> {
 
+    /**
+     * The BoardState to be sent to the engine.
+     * */
     @Setter
     BoardState boardState;
 
+    /**
+     * Overridden call method of the Task class. Gets the engine's move from {@link ChessEngineUtil#parseStockfishAnswer}
+     * and passes it to {@link ChessEngineMoveTask#parseAIMove}.
+     *
+     * @return The move to be made by the engine.
+     * */
     @Override
     protected Move call() {
 
@@ -22,7 +34,13 @@ public class ChessEngineMoveTask extends Task<Move> {
 
     }
 
-
+    /**
+     * Converts the AI move to a {@link Move}.
+     *
+     * @param boardState The BoardState that the moves happen on.
+     * @param move The AI's move string that was read.
+     * @return The move to be made by the engine.
+     * */
     public Move parseAIMove(BoardState boardState, String move) {
 
         Piece pieceToMove;

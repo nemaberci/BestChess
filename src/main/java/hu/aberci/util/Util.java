@@ -4,46 +4,35 @@ import hu.aberci.entities.data.MoveImpl;
 import hu.aberci.entities.interfaces.*;
 import javafx.scene.image.Image;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Generic Util class housing utility functions
+ * */
 public class Util {
 
+    /**
+     * Returns all the legal moves for a given Piece.
+     *
+     * @param boardState The BoardState that the Piece belongs to
+     * @param piece The Piece whose moves are to be returned.
+     * @return All tiles that can be reached by the piece legally.
+     * */
     public static Set<Tile> getAllLegalMoves(BoardState boardState, Piece piece) {
 
-        Set<Tile> baseTiles = piece.getPieceTypeProperty().get().possibleMoves.possibleMoves(boardState, piece);
+        Set<Tile> baseTiles = piece.getPieceTypeProperty().get().moveGenerator.moveGenerator(boardState, piece);
         Stream<MoveImpl> baseMoves = baseTiles.stream()
                 .map(tile -> new MoveImpl(boardState, tile, piece, false))
                 .filter(Predicates.pieceOnTileIsNotOfPlayerColor)
                 .filter(Predicates.isPlayerNotInCheckAfterMove);
 
-        /*System.out.println("Moves after first filter: " +
-                baseTiles.stream()
-                .map(tile -> new MoveImpl(boardState, tile, piece, false))
-                .filter(Predicates.pieceOnTileIsNotOfPlayerColor).collect(Collectors.toSet()).size()
-        );
-
-        System.out.println("Moves after second filter: " + baseTiles.stream()
-                .map(tile -> new MoveImpl(boardState, tile, piece, false))
-                .filter(Predicates.pieceOnTileIsNotOfPlayerColor)
-                .filter(Predicates.isPlayerNotInCheckAfterMove).collect(Collectors.toSet()).size()
-        );*/
-
         if (piece.getPieceTypeProperty().get() != PieceType.KNIGHT) {
 
             baseMoves = baseMoves.filter(Predicates.isTargetTileReachableFromPiece);
-
-            /*System.out.println("Moves after (third) filter: " + baseTiles.stream()
-                    .map(tile -> new MoveImpl(boardState, tile, piece, false))
-                    .filter(Predicates.pieceOnTileIsNotOfPlayerColor)
-                    .filter(Predicates.isPlayerNotInCheckAfterMove)
-                    .filter(Predicates.isTargetTileReachableFromPiece).collect(Collectors.toSet()).size()
-            );*/
 
         }
 
@@ -241,6 +230,12 @@ public class Util {
 
     }
 
+    /**
+     * Returns the loaded image for a given piece.
+     *
+     * @param piece The Piece whose image is to be loaded.
+     * @return The image loaded.
+     * */
     public static Image getPieceImage(Piece piece) {
 
         String imageUrl = "images/";
@@ -266,6 +261,13 @@ public class Util {
 
     }
 
+    /**
+     * Returns the loaded image of a promotion piece. Promotion pieces do not have a color, so
+     * this function does not take a Piece but a PieceType.
+     *
+     * @param pieceType The PieceType whose image is to be returned.
+     * @return The image of the promotion piece.
+     * */
     public static Image getPromotionPieceImage(PieceType pieceType) {
 
         String imageUrl = "images/bw_";

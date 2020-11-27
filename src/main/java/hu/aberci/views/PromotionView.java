@@ -16,17 +16,28 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import lombok.Getter;
 
-import java.awt.*;
 import java.util.ArrayList;
 
+/**
+ * Custom View that houses 4 PromotionPieceViews.
+ * */
 public class PromotionView extends GridPane {
 
+    /**
+     * The Parent element that will receive the pawn promotion event.
+     * */
     @Getter
     private ObjectProperty<Parent> gameSpace;
 
+    /**
+     * The inner PromotionPieceViews
+     * */
     @Getter
     private ListProperty<PromotionPieceView> promotionPieceViews;
 
+    /**
+     * Initializes the inner promotion piece views and creates the pane itself.
+     * */
     public PromotionView() {
 
         super();
@@ -87,13 +98,14 @@ public class PromotionView extends GridPane {
 
     }
 
+    /**
+     * Adds event handlers to the initialized components.
+     * */
     public void initialize() {
 
         gameSpace.get().addEventHandler(
-                ChessPieceEvent.CHESS_PIECE_EVENT_PAWN_PROMOTION,
+                ChessPieceEvent.CHESS_PIECE_EVENT_PAWN_PROMOTION_STARTED,
                 chessPieceEvent -> {
-
-                    System.out.println("PAWN PROMOTING EVENT HANDLED");
 
                     promotionPieceViews.forEach(
                             promotionPieceView -> {

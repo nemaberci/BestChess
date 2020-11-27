@@ -13,16 +13,34 @@ import javafx.scene.input.MouseEvent;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Custom View that the promotion pieces are housed in.
+ * */
 public class PromotionPieceView extends Button {
 
+    /**
+     * JAVAFX property that determines what the piece will become after promotion
+     * */
     @Getter
     private ObjectProperty<PieceType> pieceTypeProperty;
 
+    /**
+     * JAVAFX property that determines which piece will be promoted
+     * */
     @Getter
     private ObjectProperty<Piece> pieceProperty;
 
+    /**
+     * The parent element that this View is housed in. The parent element receives the events.
+     * */
     private PromotionView parent;
 
+    /**
+     * Creates a new PromotionPieceView with parent element p and piece type pieceType.
+     *
+     * @param p Parent element. This receives the events.
+     * @param pieceType The pieceType that a pawn will become after promoting.
+     * */
     public PromotionPieceView(PromotionView p, PieceType pieceType) {
 
         super();
@@ -34,29 +52,26 @@ public class PromotionPieceView extends Button {
         pieceProperty = new SimpleObjectProperty<>(null);
 
         setOnMouseClicked(
-                new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent mouseEvent) {
+                mouseEvent -> {
 
-                        if (pieceProperty.get() != null) {
+                    if (pieceProperty.get() != null) {
 
-                            parent.fireEvent(
-                                    new ChessPawnPromotionEvent(
-                                            ChessPawnPromotionEvent.CHESS_PAWN_PROMOTION_EVENT_EVENT_TYPE,
-                                            pieceProperty.get(),
-                                            pieceTypeProperty.get()
-                                    )
-                            );
+                        parent.fireEvent(
+                                new ChessPawnPromotionEvent(
+                                        ChessPawnPromotionEvent.CHESS_PAWN_PROMOTION_EVENT_EVENT_TYPE,
+                                        pieceProperty.get(),
+                                        pieceTypeProperty.get()
+                                )
+                        );
 
-                        } else {
+                    } else {
 
-                            throw new NoPromotionSetException();
-
-                        }
-
-                        getParent().setVisible(false);
+                        throw new NoPromotionSetException();
 
                     }
+
+                    getParent().setVisible(false);
+
                 }
         );
 

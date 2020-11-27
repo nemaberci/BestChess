@@ -17,8 +17,6 @@ import javafx.scene.Parent;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -270,7 +268,7 @@ public class ChessGameController {
      *     <li>{@link ChessBoardEvent#CHESS_BOARD_EVENT_CHECK}: When a player gets in check</li>
      *     <li>{@link ChessBoardEvent#CHESS_BOARD_EVENT_CHECKMATE}: When a player gets checkmated</li>
      *     <li>{@link ChessBoardEvent#CHESS_BOARD_EVENT_DRAW}: When the position is drawn</li>
-     *     <li>{@link ChessPieceEvent#CHESS_PIECE_EVENT_PAWN_PROMOTION}: When a pawn is about to be promoted</li>
+     *     <li>{@link ChessPieceEvent#CHESS_PIECE_EVENT_PAWN_PROMOTION_STARTED}: When a pawn is about to be promoted</li>
      *     <li>{@link ChessPieceEvent#CHESS_PIECE_EVENT_PIECE_MOVED}: After a piece has been moved, signaling that this function is over</li>
      *     <li>{@link ChessPieceEvent#CHESS_PIECE_EVENT_PIECE_TAKEN}: When a piece gets taken</li>
      * </ul>
@@ -492,7 +490,7 @@ public class ChessGameController {
             // they are promoting
             if (pieceInNewBoardState.getTileProperty().get().getXProperty().get() == 0 || pieceInNewBoardState.getTileProperty().get().getXProperty().get() == 7) {
 
-                parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PAWN_PROMOTION, new MoveImpl(newBoardState, tileInNewBoardState, pieceInNewBoardState, tileInNewBoardState.getPieceProperty().get() != null)));
+                parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PAWN_PROMOTION_STARTED, new MoveImpl(newBoardState, tileInNewBoardState, pieceInNewBoardState, tileInNewBoardState.getPieceProperty().get() != null)));
 
             }
 

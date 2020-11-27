@@ -17,7 +17,7 @@ public class ChessPieceEvent extends ChessEvent {
     /**
      * An event signaling that a pawn is being promoted.
      * */
-    public static final EventType<ChessPieceEvent> CHESS_PIECE_EVENT_PAWN_PROMOTION = new EventType<>(ChessEvent.CHESS_EVENT_EVENT_TYPE, "PiecePromotion");
+    public static final EventType<ChessPieceEvent> CHESS_PIECE_EVENT_PAWN_PROMOTION_STARTED = new EventType<>(ChessEvent.CHESS_EVENT_EVENT_TYPE, "PiecePromotionStarted");
     /**
      * An event signaling that a piece has started to move.
      * */
