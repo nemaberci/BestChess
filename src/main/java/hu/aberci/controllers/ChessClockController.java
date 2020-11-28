@@ -57,6 +57,18 @@ public class ChessClockController {
     }
 
     /**
+     * Returns whether the game has ended by clock flagging yet.
+     *
+     * @return {@code false} if both players have more than 1 seconds and {@code true} otherwise.
+     * */
+    public boolean hasFlagFallen() {
+
+        return !(chessClockProperty.get().getBlackTimeProperty().get() > 0 &&
+                chessClockProperty.get().getWhiteTimeProperty().get() > 0);
+
+    }
+
+    /**
      * This function does what a chess clock's button would do. It changes the current player's turn to the opposite
      * and adds the specified increment to the current player's turn. No event can occur while a chessclock is clicked.
      * */

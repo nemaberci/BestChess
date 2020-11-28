@@ -14,6 +14,8 @@ import hu.aberci.util.ExecutorUtil;
 import hu.aberci.views.ChessBoardView;
 import hu.aberci.views.PromotionView;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -24,6 +26,9 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import javafx.util.converter.NumberStringConverter;
+import lombok.Getter;
+import org.apache.commons.lang3.SystemUtils;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
@@ -115,7 +120,7 @@ public class GameController implements Initializable {
      * Variable used in the chess clock. This value is read from the MenuController or
      * a previously loaded BoardState.
      * */
-    int time, increment;
+    int time = 1, increment = 0;
 
     /**
      * Shows if the current game has the chess clock enabled. This value is read from the MenuController
@@ -131,6 +136,12 @@ public class GameController implements Initializable {
      * Only used when AI is enabled. Shows which side the AI is playing.
      * */
     private PlayerColor AIColor = PlayerColor.BLACK;
+
+    /**
+     * JAVAFX property storing whether the game is still going on.
+     * */
+    @Getter
+    private BooleanProperty isGameLive;
 
     /**
      * Sends the AI (Stockfish) the current position and time controls. Creates a new {@link ChessEngineMoveTask}
@@ -240,6 +251,10 @@ public class GameController implements Initializable {
     public GameController() {
 
         chessClockController = null;
+
+        isGameLive = new SimpleBooleanProperty(
+                true
+        );
 
         int clockTime = 0;
         int clockIncrement = 0;
@@ -372,6 +387,13 @@ public class GameController implements Initializable {
 
         }
 
+        System.out.println(chessGameController.isPlayerInCheckmate() + " " + chessGameController.isPlayerInDraw() + " " + chessClockController.hasFlagFallen());
+        isGameLive.set(
+                !(
+                        chessGameController.isPlayerInCheckmate() || chessGameController.isPlayerInDraw() || chessClockController.hasFlagFallen()
+                )
+        );
+
         chessGameController.setParent(chessBoard);
 
         chessBoard.initialize();
@@ -391,6 +413,10 @@ public class GameController implements Initializable {
 
         chessBoard.getChessAIEnabledProperty().set(
                 isAIEnabled
+        );
+
+        chessBoard.getIsGameLive().bindBidirectional(
+                isGameLive
         );
 
         textArea.setVisible(false);
@@ -487,6 +513,10 @@ public class GameController implements Initializable {
                             textArea.getText() + "\n" + (PlayerColor.WHITE.equals(chessBoard.getBoardStateProperty().get().getPlayerTurnProperty().get()) ? "Black" : "White") + " wins"
                     );
 
+                    isGameLive.set(
+                            false
+                    );
+
                 }
         );
 
@@ -498,6 +528,10 @@ public class GameController implements Initializable {
 
                     textArea.setText("Draw");
                     newGame.setVisible(true);
+
+                    isGameLive.set(
+                            false
+                    );
 
                 }
         );
@@ -550,6 +584,10 @@ public class GameController implements Initializable {
 
                     textArea.setText(
                             textArea.getText() + "\n" + (PlayerColor.WHITE.equals(chessBoard.getBoardStateProperty().get().getPlayerTurnProperty().get()) ? "Black" : "White") + " wins"
+                    );
+
+                    isGameLive.set(
+                            false
                     );
 
                 }

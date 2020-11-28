@@ -71,6 +71,24 @@ public class PieceView extends Button {
                             getParent().fireEvent(mouseEvent);
                         } else {
 
+                            if (parent.getIsGameLive().get()) {
+
+                                parentBoard.selectedPieceView.set(
+                                        me
+                                );
+                                parentBoard.fireEvent(
+                                        new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_SELECTED,
+                                                new MoveImpl(parentBoard.getBoardStateProperty().get(), null, me.getPieceProperty().get(), false))
+                                );
+
+                            }
+
+                        }
+
+                    } else {
+
+                        if (parent.getIsGameLive().get()) {
+
                             parentBoard.selectedPieceView.set(
                                     me
                             );
@@ -80,16 +98,6 @@ public class PieceView extends Button {
                             );
 
                         }
-
-                    } else {
-
-                        parentBoard.selectedPieceView.set(
-                                me
-                        );
-                        parentBoard.fireEvent(
-                                new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_SELECTED,
-                                        new MoveImpl(parentBoard.getBoardStateProperty().get(), null, me.getPieceProperty().get(), false))
-                        );
 
                     }
 

@@ -25,6 +25,10 @@ public class Bishop implements MoveGenerator {
 
         for (int i = -Math.min(pieceX, pieceY); i <= Math.min(7-pieceX, 7-pieceY); i++) {
 
+            if (i == 0) {
+                continue;
+            }
+
             moves.add(
                     boardState.getTilesProperty().get()
                             .get(pieceX + i)
@@ -34,6 +38,10 @@ public class Bishop implements MoveGenerator {
         }
 
         for (int i = -Math.min(pieceX, 7-pieceY); i <= Math.min(7-pieceX, pieceY); i++) {
+
+            if (i == 0) {
+                continue;
+            }
 
             moves.add(
                     boardState.getTilesProperty().get()

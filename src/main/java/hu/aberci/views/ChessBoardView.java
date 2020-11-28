@@ -76,11 +76,19 @@ public class ChessBoardView extends GridPane {
     ObjectProperty<PlayerColor> chessAIColorProperty;
 
     /**
+     * JAVAFX property that stores whether this game is still being played.
+     * */
+    @Getter
+    BooleanProperty isGameLive;
+
+    /**
      * Default constructor. Initializes the inner properties, adds its own event handlers.
      * */
     public ChessBoardView() {
 
         super();
+
+        isGameLive = new SimpleBooleanProperty();
 
         selectedPieceView = new SimpleObjectProperty<>(null);
         selectedPieceLegalMoves = new SimpleListProperty<>(
