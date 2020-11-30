@@ -303,12 +303,22 @@ public class GameController implements Initializable {
 
         }
 
+        chessGameController.getBoardStateProperty().get().getChessClockProperty().set(
+                chessClockController.getChessClockProperty().get()
+        );
+
+        chessClockController.getChessClockProperty().bindBidirectional(
+                chessGameController.getBoardStateProperty().get().getChessClockProperty()
+        );
+
         try {
 
             FileOutputStream fileOutputStream = new FileOutputStream(GameMain.savedGameFileName);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
 
-            objectOutputStream.writeObject(new SerializableBoardStateImpl(chessBoard.getBoardStateProperty().get()));
+            System.out.println(chessGameController.getBoardStateProperty().get());
+
+            objectOutputStream.writeObject(new SerializableBoardStateImpl(chessGameController.getBoardStateProperty().get()));
 
             objectOutputStream.close();
             fileOutputStream.close();
@@ -387,7 +397,7 @@ public class GameController implements Initializable {
 
         }
 
-        System.out.println(chessGameController.isPlayerInCheckmate() + " " + chessGameController.isPlayerInDraw() + " " + chessClockController.hasFlagFallen());
+        // System.out.println(chessGameController.isPlayerInCheckmate() + " " + chessGameController.isPlayerInDraw() + " " + chessClockController.hasFlagFallen());
         isGameLive.set(
                 !(
                         chessGameController.isPlayerInCheckmate() || chessGameController.isPlayerInDraw() || chessClockController.hasFlagFallen()

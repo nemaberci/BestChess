@@ -363,8 +363,8 @@ public class MenuController {
                         if (!newValue.matches("[0-9]+")) {
                             clockIncrement.setText(oldValue);
                         } else {
-                            if (Integer.parseInt(newValue) < 1) {
-                                clockIncrement.setText("1");
+                            if (Integer.parseInt(newValue) < 0) {
+                                clockIncrement.setText("0");
                             }
                             if (Integer.parseInt(newValue) > 120) {
                                 clockIncrement.setText("120");
