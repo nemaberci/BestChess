@@ -182,7 +182,7 @@ public class GameController implements Initializable {
 
                         Move AIMove = chessEngineMoveTask.getValue();
 
-                        System.out.println("MOVING FOR AI");
+                        // System.out.println("MOVING FOR AI");
 
                         chessGameController.movePieceToTile(
                                 AIMove.getPiece(),
@@ -214,14 +214,13 @@ public class GameController implements Initializable {
      * */
     public void restart() {
 
-        textArea.setVisible(false);
+        GameMain.getMenuController().deleteSavedGame();
+
+        // textArea.setVisible(false);
 
         if (isChessClock) {
 
             ExecutorUtil.stop();
-            chessClockController.getChessClockProperty().unbindBidirectional(
-                    chessGameController.getBoardStateProperty().get().getChessClockProperty()
-            );
 
         }
 
@@ -229,12 +228,30 @@ public class GameController implements Initializable {
 
         chessGameController.setParent(chessBoard);
 
-        chessBoard.getBoardStateProperty()
+        chessGameController.getBoardStateProperty().get().getIsTimeControlledProperty().set(
+                isChessClock
+        );
+
+        //chessBoard.initialize();
+
+        /*chessBoard.getBoardStateProperty().set(
+                chessGameController.getBoardStateProperty().get()
+        );*/
+
+        /*chessBoard.getBoardStateProperty()
                 .bindBidirectional(chessGameController.getBoardStateProperty());
 
-        chessBoard.setChessGameController(chessGameController);
+        chessBoard.setChessGameController(chessGameController);*/
 
+        chessClockController.getChessClockProperty().bindBidirectional(
+                chessGameController.getBoardStateProperty().get().getChessClockProperty()
+        );
+
+        initialize();
+/*
         if (isChessClock) {
+
+            System.out.println("STARTING NEW TIMER");
 
             chessClockController.getChessClockProperty().bindBidirectional(
                     chessGameController.getBoardStateProperty().get().getChessClockProperty()
@@ -242,7 +259,7 @@ public class GameController implements Initializable {
             ExecutorUtil.start();
 
         }
-
+*/
     }
 
     /**
@@ -316,7 +333,7 @@ public class GameController implements Initializable {
             FileOutputStream fileOutputStream = new FileOutputStream(GameMain.savedGameFileName);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
 
-            System.out.println(chessGameController.getBoardStateProperty().get());
+            // System.out.println(chessGameController.getBoardStateProperty().get());
 
             objectOutputStream.writeObject(new SerializableBoardStateImpl(chessGameController.getBoardStateProperty().get()));
 
@@ -370,8 +387,7 @@ public class GameController implements Initializable {
      * Initializes the GUI. Reads the current settings from the MenuController, sets the
      * event handlers for the chess board and moves the AI if necessary.
      * */
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    private void initialize() {
 
         try {
 
@@ -384,6 +400,8 @@ public class GameController implements Initializable {
             isChessClock = menuController.getChessClockEnabled().isSelected();
 
             if (menuController.getBoardState() != null) {
+
+                System.out.println("GOT HERE");
 
                 chessGameController = new ChessGameController(null, menuController.getBoardState());
 
@@ -410,6 +428,10 @@ public class GameController implements Initializable {
 
         chessGameController.getBoardStateProperty().get().getIsTimeControlledProperty().set(
                 isChessClock
+        );
+
+        chessBoard.getBoardStateProperty().set(
+                chessGameController.getBoardStateProperty().get()
         );
 
         chessBoard.getBoardStateProperty()
@@ -467,7 +489,7 @@ public class GameController implements Initializable {
 
         if (isAIEnabled) {
 
-            System.out.println("AI IS ENABLED");
+            // System.out.println("AI IS ENABLED");
 
             ChessEngineUtil.startEngine();
 
@@ -527,6 +549,12 @@ public class GameController implements Initializable {
                             false
                     );
 
+                    if (isChessClock) {
+
+                        ExecutorUtil.stop();
+
+                    }
+
                 }
         );
 
@@ -542,6 +570,11 @@ public class GameController implements Initializable {
                     isGameLive.set(
                             false
                     );
+                    if (isChessClock) {
+
+                        ExecutorUtil.stop();
+
+                    }
 
                 }
         );
@@ -585,7 +618,7 @@ public class GameController implements Initializable {
                 ChessBoardEvent.CHESS_BOARD_EVENT_CLOCK_FLAG,
                 chessBoardEvent -> {
 
-                    System.out.println("TIME RAN OUT");
+                    // System.out.println("TIME RAN OUT");
 
                     ExecutorUtil.stop();
 
@@ -607,7 +640,7 @@ public class GameController implements Initializable {
                 ChessPawnPromotionEvent.CHESS_PAWN_PROMOTION_EVENT_EVENT_TYPE,
                 chessPawnPromotionEvent -> {
 
-                    System.out.println("PROMOTING");
+                    // System.out.println("PROMOTING");
 
                     chessGameController.promotePawnToPieceType(
                             chessPawnPromotionEvent.getPiece(),
@@ -628,6 +661,16 @@ public class GameController implements Initializable {
         );
         promotionView.initialize();
         promotionView.setVisible(false);
+
+    }
+
+    /**
+     * Calls the inner initialize function
+     * */
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        initialize();
 
     }
 }
