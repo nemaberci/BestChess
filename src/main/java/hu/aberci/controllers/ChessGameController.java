@@ -257,6 +257,8 @@ public class ChessGameController {
                 newBoardState
         );
 
+        parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_MOVED, new MoveImpl()));
+
     }
 
     /**
@@ -485,6 +487,9 @@ public class ChessGameController {
             parent.fireEvent(new ChessBoardEvent(ChessBoardEvent.CHESS_BOARD_EVENT_DRAW, boardStateProperty.get()));
         }
 
+        /*
+         * A move is not done unless the piece has been changed.
+         * */
         if (pieceInNewBoardState.getPieceTypeProperty().get() == PieceType.PAWN) {
             // Because pawns only move forward, if they reach one end of the board
             // they are promoting
@@ -492,7 +497,15 @@ public class ChessGameController {
 
                 parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PAWN_PROMOTION_STARTED, new MoveImpl(newBoardState, tileInNewBoardState, pieceInNewBoardState, tileInNewBoardState.getPieceProperty().get() != null)));
 
+            } else {
+
+                parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_MOVED, new MoveImpl()));
+
             }
+
+        } else {
+
+            parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_MOVED, new MoveImpl()));
 
         }
 
@@ -503,7 +516,6 @@ public class ChessGameController {
         }
 
         // What caused the piece moved event does not matter, we only want to know when it happens
-        parent.fireEvent(new ChessPieceEvent(ChessPieceEvent.CHESS_PIECE_EVENT_PIECE_MOVED, new MoveImpl()));
 
         // System.out.println(boardStateProperty.get().getFEN().getFENCode());
 
