@@ -117,11 +117,11 @@ public class PieceView extends Button {
         imageView.setPreserveRatio(true);
 
         imageView.setFitHeight(
-                40
+                30
         );
 
         imageView.setFitWidth(
-                35
+                30
         );
 
         setGraphic(
