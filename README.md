@@ -6,3 +6,6 @@ The project has a maven wrapper that must be run with the correct command. The c
 
  - **Windows**: mvnw.cmd clean javafx:run
  - **Linux**: Not supported yet.
+
+## Java requirements
+The program requires Java version 11+.
